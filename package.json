@@ -1,0 +1,25 @@
+{
+  "name": "zisui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Quramy/zisui.git"
+  },
+  "keywords": [
+    "screenshot"
+  ],
+  "author": "quramy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Quramy/zisui/issues"
+  },
+  "homepage": "https://github.com/Quramy/zisui#readme",
+  "devDependencies": {
+    "typescript": "^3.0.1"
+  }
+}
