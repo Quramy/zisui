@@ -2,8 +2,9 @@
   "name": "zisui",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/cli.js",
+  "main": "lib/client/index.js",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,7 +23,9 @@
   "devDependencies": {
     "@types/mkdirp": "^0.5.2",
     "@types/node": "^10.5.7",
+    "@types/react": "^16.4.8",
     "@types/rimraf": "^2.0.2",
+    "react": "^16.4.2",
     "typescript": "^3.0.1"
   },
   "dependencies": {

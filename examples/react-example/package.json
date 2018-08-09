@@ -13,7 +13,8 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "storybook": "start-storybook -p 9009 -s public",
-    "prestorybook": "rimraf node_modules/zisui && mkdirp node_modules/zisui && cp ../../package.json node_modules/zisui && cp -rf ../../lib node_modules/zisui && cp ../../register.js node_modules/zisui",
+    "build:lib": "cd ../../ && yarn build",
+    "prestorybook": "yarn build:lib && rimraf node_modules/zisui && mkdirp node_modules/zisui && cp ../../package.json node_modules/zisui && cp -rf ../../lib node_modules/zisui && cp ../../register.js node_modules/zisui",
     "build-storybook": "build-storybook -s public"
   },
   "devDependencies": {

@@ -1,8 +1,9 @@
 import addoons from "@storybook/addons";
+import { ExposedWindow } from "../types";
 
 addoons.register("zisui", api => {
 
   addoons.getChannel().once("setStories", e => {
-    console.log(e.stories);
+    (window as ExposedWindow).stories = e.stories;
   });
 });
