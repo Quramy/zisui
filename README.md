@@ -98,5 +98,10 @@ type ScreenShotOptions = {
   withScreenshot({ waitFor: 'myWait' }) // wait for 5 seconds.
 ```
 
+### Remarks
+
+#### CSS animation
+By default *zisui* disables CSS animation and transition to stabilize screenshot images. You can turn off via `--no-disableCssAnimatin`.
+
 ## License
 MIT

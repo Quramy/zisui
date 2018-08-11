@@ -28,7 +28,7 @@ export class Browser {
   }
 
   async boot() {
-    this.browser = await launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
+    this.browser = await launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"], headless: true });
     this.page = await this.browser.newPage();
     return this;
   }
