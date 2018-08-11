@@ -1,10 +1,11 @@
 {
   "name": "zisui",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "description": "Fast and simple storybook screenshooter.",
   "bin": {
     "zisui": "lib/cli.js"
   },
+  "typings": "lib/client/index.d.ts",
   "main": "lib/client/index.js",
   "scripts": {
     "build": "tsc",
