@@ -81,6 +81,7 @@ export class PreviewBrowser extends Browser {
 
   private async expose() {
     this.page.exposeFunction("emitCatpture", (opt: any) => this.screenshotCallback(opt));
+    this.page.exposeFunction("getCurrentStory", (url: string) => url2story(url));
   }
 
   async screenshotCallback(opt: ScreenShotOptionsForApp) {

@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import addons, { StoryKind } from "@storybook/addons";
-import { capture } from "../capture";
+import { capture, stock } from "../capture";
 import { ScreenShotOptions } from "../types";
 
 type Props = {
@@ -9,8 +9,12 @@ type Props = {
 
 class ScreenshotDecorator extends React.Component<Props> {
 
+  componentWillMount() {
+    stock(this.props.screenshotOptions);
+  }
+
   componentDidMount() {
-    capture(this.props.screenshotOptions);
+    capture();
   }
 
   render() {

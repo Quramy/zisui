@@ -1,1 +1,2 @@
-export * from "./react/withScreenshot";
+export * from "./capture";
+export { withScreenshot } from "./with-screenshot";
