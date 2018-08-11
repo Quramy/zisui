@@ -1,49 +1,43 @@
-import fs from "fs";
-import path from "path";
-import { Buffer } from "buffer";
-import * as mkdirp from "mkdirp";
+import { StoryKind } from "@storybook/addons";
 import { StorybookBrowser, PreviewBrowser } from "./browser";
-import { execParalell } from "./util";
+import { execParalell, flattenStories } from "./util";
+import { MainOptions } from "./types";
+import { StorybookServer } from "./server";
+import { FileSystem } from "./file";
 
-function save(outdir: string, kind: string, story: string, buffer: Buffer) {
-  const filePath = path.join(outdir, kind, story + ".png");
-  return new Promise((resolve, reject) => {
-    mkdirp.sync(path.dirname(filePath));
-    fs.writeFile(filePath, buffer, (err) => {
-      if (err) reject(err);
-      resolve();
-    });
-  });
+async function bootPreviewBrowsers(opt: MainOptions, stories: StoryKind[]) {
+  const browsers = new Array(Math.min(opt.parallel, flattenStories(stories).length)).fill("").map((_, i) => new PreviewBrowser(opt, i));
+  await browsers[0].boot();
+  await Promise.all(browsers.slice(1, browsers.length).map(b => b.boot()));
+  opt.logger.debug(`Started ${browsers.length} preview browsers`);
+  return browsers;
 }
 
-export async function main() {
-  const storybookBrowser = new StorybookBrowser();
+export async function main(opt: MainOptions) {
+  const logger = opt.logger;
+  const fileSystem = new FileSystem(opt);
+  const storybookServer = new StorybookServer(opt);
+  const storybookBrowser = new StorybookBrowser(opt);
+
+  await storybookServer.launchIfNeeded();
   await storybookBrowser.boot();
-  const url1 = "http://localhost:9009";
-  await storybookBrowser.openPage(url1);
+
   const stories = await storybookBrowser.getStories();
   storybookBrowser.close();
 
-  console.log(stories);
+  const browsers = await bootPreviewBrowsers(opt, stories);
 
-  const previewBrowser = new PreviewBrowser();
-  await previewBrowser.boot();
-  await previewBrowser.expose();
-  await previewBrowser.openPage(url1 + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
-
-  const browsers = [previewBrowser];
-
-  const tasks = stories
-    .reduce((acc, storyKind) => [...acc, ...storyKind.stories.map(story => ({ kind: storyKind.kind, story }))], [] as { story: string, kind: string}[])
+  const tasks = flattenStories(stories)
     .map(({ story, kind }) => {
-      return async (i: number) => {
-        await browsers[i].setCurrentStory(kind, story);
+      return async (previewBrowser: PreviewBrowser) => {
+        await previewBrowser.setCurrentStory(kind, story);
         const { buffer } = await previewBrowser.screenshot();
-        await save("__screenshot__", kind, story, buffer);
+        await fileSystem.save(kind, story, buffer);
       };
     });
 
-  await execParalell(tasks);
+  await execParalell(tasks, browsers);
 
   browsers.map(b => b.close());
+  storybookServer.shutdown();
 }

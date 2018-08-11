@@ -1,3 +1,14 @@
+export class StorybookServerTimeoutError extends Error {
+
+  name = "ScreenshotTimeoutError";
+
+  constructor(msec: number) {
+    super();
+    this.message = `Storybook server launch timeout exceeded in ${msec} ms.`;
+  }
+
+}
+
 export class ScreenshotTimeoutError extends Error {
 
   name = "ScreenshotTimeoutError";

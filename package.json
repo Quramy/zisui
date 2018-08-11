@@ -5,6 +5,7 @@
   "main": "lib/client/index.js",
   "scripts": {
     "build": "tsc",
+    "lint": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,12 +27,20 @@
     "@types/react": "^16.4.8",
     "@types/rimraf": "^2.0.2",
     "react": "^16.4.2",
+    "tslint": "^5.11.0",
+    "tslint-eslint-rules": "^5.3.1",
+    "tslint-language-service": "^0.9.9",
     "typescript": "^3.0.1"
   },
   "dependencies": {
+    "@types/chalk": "^2.2.0",
     "@types/puppeteer": "^1.6.0",
+    "@types/yargs": "^11.1.1",
+    "chalk": "^2.4.1",
     "mkdirp": "^0.5.1",
     "puppeteer": "^1.6.2",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "wait-on": "^2.1.0",
+    "yargs": "^12.0.1"
   }
 }

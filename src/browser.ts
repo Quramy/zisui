@@ -8,30 +8,40 @@ import {
   Browser as PuppeteerBrowser,
   Page,
 } from "puppeteer";
-import { ExposedWindow } from "./types";
+import { ExposedWindow, MainOptions } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "./client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
+import { flattenStories, sleep } from "./util";
+
+function url2story(url: string) {
+  const q = parse(url).query || "";
+  const { selectedKind: kind, selectedStory: story } = querystring.parse(q);
+  if (!kind || Array.isArray(kind) || !story || Array.isArray(story)) return;
+  return { kind, story };
+}
 
 export class Browser {
   private browser!: PuppeteerBrowser;
   protected page!: Page;
 
-  constructor() {
+  constructor(protected opt: MainOptions) {
   }
 
   async boot() {
     // TODO args for CI
     this.browser = await launch();
     this.page = await this.browser.newPage();
+    return this;
   }
 
-  async openPage(url: string) {
+  protected async openPage(url: string) {
     await this.page.goto(url);
   }
 
   async close() {
     try {
       await this.page.close();
+      await sleep(50);
       await this.browser.close();
     } catch(e) {
       // nothing to do
@@ -41,16 +51,13 @@ export class Browser {
 
 export class StorybookBrowser extends Browser {
   async getStories() {
+    this.opt.logger.debug("Wait for stories definition.");
+    await this.openPage(this.opt.storybookUrl);
     const stories = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as StoryKind[];
+    this.opt.logger.debug(stories);
+    this.opt.logger.log(`Found ${this.opt.logger.color.green(flattenStories(stories).length + "")} stories.`);
     return stories;
   }
-}
-
-function url2story(url: string) {
-  const q = parse(url).query || "";
-  const { selectedKind: kind, selectedStory: story } = querystring.parse(q);
-  if (!kind || Array.isArray(kind) || !story || Array.isArray(story)) return;
-  return { kind, story };
 }
 
 export class PreviewBrowser extends Browser {
@@ -58,15 +65,22 @@ export class PreviewBrowser extends Browser {
   private currentStory?: { kind: string, story: string };
   private tempBuffer?: Buffer;
 
-  constructor() {
-    super();
+  constructor(mainOptions: MainOptions, private idx: number) {
+    super(mainOptions);
     this.emitter = new EventEmitter();
     this.emitter.on("error", e => {
       throw e;
     });
   }
 
-  async expose() {
+  async boot() {
+    await super.boot();
+    await this.expose();
+    await this.openPage(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
+    return this;
+  }
+
+  private async expose() {
     this.page.exposeFunction("emitCatpture", (opt: any) => this.screenshotCallback(opt));
   }
 
@@ -104,7 +118,6 @@ export class PreviewBrowser extends Browser {
 
   async setCurrentStory(kind: string, story: string) {
     this.currentStory = { kind, story };
-    console.log(this.page.url());
     const data = {
       key: "storybook-channel",
       event: {
@@ -118,6 +131,7 @@ export class PreviewBrowser extends Browser {
         from: "zisui",
       }
     };
+    this.opt.logger.debug(`[cid: ${this.idx}]`, "Set story", kind, story);
     await this.page.evaluate((d: typeof data) => window.postMessage(JSON.stringify(d), "*"), data);
   }
 
