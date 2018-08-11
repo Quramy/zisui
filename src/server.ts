@@ -27,7 +27,7 @@ export class StorybookServer {
     this.opt.logger.log("Wait for starting storybook server,", this.opt.storybookUrl);
     if (this.opt.serverCmd) {
       const [cmd, ...args] = this.opt.serverCmd.split(/\s+/);
-      const stdio = this.opt.logger.level !== "silent" ? [0, 1, 2]: [];
+      const stdio = this.opt.logger.level === "verbose" ? [0, 1, 2]: [];
       this.proc = cp.spawn(cmd, args, { stdio });
       this.opt.logger.debug("Server process created", this.proc.pid);
     }
