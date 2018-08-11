@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { main } from "./main";
 import { MainOptions } from "./types";
 import yargs from "yargs";
