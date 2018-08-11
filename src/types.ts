@@ -4,8 +4,9 @@ import { Logger } from "./logger";
 
 export type ExposedWindow = typeof window & {
   stories?: StoryKind[];
-  setStories(stories: StoryKind[]): void;
   emitCatpture(opt: ScreenShotOptions): void;
+  waitFor?: () => Promise<any>;
+  requestIdleCallback(cb: Function, opt?: { timeout: number }): void;
 };
 
 export interface MainOptions {

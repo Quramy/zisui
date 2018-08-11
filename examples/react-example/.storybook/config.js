@@ -5,5 +5,11 @@ function loadStories() {
   require('../src/stories');
 }
 
-addDecorator(withScreenshot());
+addDecorator(withScreenshot({
+  viewPort: {
+    width: 1200,
+    height: 800,
+  }
+}));
+
 configure(loadStories, module);

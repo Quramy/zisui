@@ -88,7 +88,8 @@ export class PreviewBrowser extends Browser {
     if (!this.currentStory) {
       this.emitter.emit("error", new InvalidCurrentStoryStateError());
     } else {
-      const buffer = await this.page.screenshot();
+      await this.page.setViewport(opt.viewPort);
+      const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
       this.emitter.emit("screenshot", buffer);
     }
   }
