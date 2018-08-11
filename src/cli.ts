@@ -10,6 +10,7 @@ function createOptions(): MainOptions {
     .usage("zisui storybook_url")
     .option("outDir", { string: true, alias: "o", default: "__screenshot__", description: "Output directory." })
     .option("parallel", { number: true, alias: "p", default: 4, description: "Number of browsers to screenshot." })
+    .option("disableCssAnimation", { boolean: true, default: true, description: "Disable CSS animation and transition." })
     .option("silent", { boolean: true, default: false })
     .option("verbose", { boolean: true, default: false })
     .option("serverCmd", { string: true, default: "", description: "Command line to launch Storybook server." })
@@ -32,6 +33,7 @@ function createOptions(): MainOptions {
     verbose,
     serverTimeout,
     serverCmd,
+    disableCssAnimation,
   } = setting.argv;
 
   const opt = {
@@ -40,6 +42,7 @@ function createOptions(): MainOptions {
     parallel,
     serverCmd,
     serverTimeout,
+    disableCssAnimation,
     logger: new Logger(verbose ? "verbose" : silent ? "silent" : "normal"),
   } as MainOptions;
   return opt;

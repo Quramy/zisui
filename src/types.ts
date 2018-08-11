@@ -17,6 +17,7 @@ export interface MainOptions {
   serverCmd: string;
   serverTimeout: number;
   outDir: string;
+  disableCssAnimation: boolean;
   parallel: number;
   logger: Logger;
 }

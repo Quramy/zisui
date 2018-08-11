@@ -76,7 +76,21 @@ export class PreviewBrowser extends Browser {
     await super.boot();
     await this.expose();
     await this.openPage(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
+    await this.addStyles();
     return this;
+  }
+
+  private async addStyles() {
+    if (this.opt.disableCssAnimation) {
+      await this.page.addStyleTag({
+        content: `
+*, *::before, *::after {
+  transition: none !important;
+  animation: none !important;
+}
+        `,
+      });
+    }
   }
 
   private async expose() {
