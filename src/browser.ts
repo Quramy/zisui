@@ -28,8 +28,7 @@ export class Browser {
   }
 
   async boot() {
-    // TODO args for CI
-    this.browser = await launch();
+    this.browser = await launch({ args: ["--no-sandbox", "--disable-setuid-sandbox"] });
     this.page = await this.browser.newPage();
     return this;
   }
