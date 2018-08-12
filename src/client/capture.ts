@@ -27,7 +27,7 @@ function waitUserFunction(waitFor: string, win: ExposedWindow) {
   return win.waitFor();
 }
 
-function waitNextIdl(win: ExposedWindow) {
+function waitNextIdle(win: ExposedWindow) {
   return new Promise(res => win.requestIdleCallback(() => res(), { timeout: 3000 }));
 }
 
@@ -75,7 +75,7 @@ export function capture() {
         .then(() => waitImages(scOpt.waitImages))
         .then(() => sleep(scOpt.delay))
         .then(() => waitUserFunction(scOpt.waitFor, win))
-        .then(() => waitNextIdl(win))
+        .then(() => waitNextIdle(win))
         .then(() => win.emitCatpture(scOpt));
     });
   });
