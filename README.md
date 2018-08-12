@@ -47,7 +47,7 @@ Also you can decorate some specific stories.
 ```js
 storiesOf('SomeKind', module)
 .addDecorator(withScreenshot({
-  viewPort: {
+  viewport: {
     width: 600,
     height: 400,
   },
@@ -75,7 +75,7 @@ A Storybook decorator to notify *zisui* to screenshot stories.
 type ScreenShotOptions = {
   waitImages?: boolean,   // default true
   waitFor?: string,       // default ""
-  viewPort?: {
+  viewport?: string | {
     width: number,        // default 800
     height: number,       // default 600
   },
@@ -83,6 +83,7 @@ type ScreenShotOptions = {
 }
 ```
 
+- `viewport`: If you set a string parameter, it must be included Puppeteer's device descriptors.
 - `waitFor` : Sometimes you want control the timing to screenshot. If you set a name of a function to return `Promise`, *zisui* waits the promise is resolved. 
 
 ```html
