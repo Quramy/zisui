@@ -32,7 +32,9 @@ export async function main(opt: MainOptions) {
       return async (previewBrowser: PreviewBrowser) => {
         await previewBrowser.setCurrentStory(kind, story);
         const { buffer } = await previewBrowser.screenshot();
-        await fileSystem.save(kind, story, buffer);
+        if (buffer) {
+          await fileSystem.save(kind, story, buffer);
+        }
       };
     });
 

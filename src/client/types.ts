@@ -4,7 +4,11 @@ export type ScreenShotOptions = {
   viewPort: {
     width: number,
     height: number,
-  },
+    deviceScaleFactor?: number,
+    isMobile?: boolean,
+    hasTouch?: boolean,
+    isLandscape?: boolean,
+  } | string,
   fullPage: boolean,
 };
 

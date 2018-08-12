@@ -7,7 +7,9 @@ import {
   launch,
   Browser as PuppeteerBrowser,
   Page,
+  Viewport,
 } from "puppeteer";
+
 import { ExposedWindow, MainOptions } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "./client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
@@ -99,10 +101,21 @@ export class PreviewBrowser extends Browser {
   }
 
   async screenshotCallback(opt: ScreenShotOptionsForApp) {
+    const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
     if (!this.currentStory) {
       this.emitter.emit("error", new InvalidCurrentStoryStateError());
     } else {
-      await this.page.setViewport(opt.viewPort);
+      if (typeof opt.viewPort === "string") {
+        const hit = dd.find(d => d.name === opt.viewPort);
+        if (!hit) {
+          this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewPort)} is not registered in 'puppeteer/DeviceDescriptor'.`);
+          this.emitter.emit("skip");
+          return;
+        }
+        await this.page.setViewport(hit.viewport);
+      } else {
+        await this.page.setViewport(opt.viewPort);
+      }
       const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
       this.emitter.emit("screenshot", buffer);
     }
@@ -111,16 +124,18 @@ export class PreviewBrowser extends Browser {
   screenshot() {
     return new Promise<Buffer>((resolve, reject) => {
       let id: NodeJS.Timer;
-      const cb = (buffer: Buffer) => {
+      const cb = (buffer?: Buffer) => {
         resolve(buffer);
+        this.emitter.removeAllListeners();
         clearTimeout(id);
       };
       id = setTimeout(() => {
-        this.emitter.removeListener("screenshot", cb);
+        this.emitter.removeAllListeners();
         reject(new ScreenshotTimeoutError(20000, this.currentStory || { }));
       }, 20000);
       this.emitter.once("screenshot", cb);
-    }).then(buffer => {
+      this.emitter.once("skip", cb);
+    }).then((buffer: Buffer | undefined) => {
       if (!this.currentStory) {
         throw new Error("Fail to screenshot. The current story is not set");
       }

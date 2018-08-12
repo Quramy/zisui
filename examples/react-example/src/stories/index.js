@@ -10,10 +10,7 @@ import { withScreenshot } from 'zisui';
 storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
 storiesOf('Welcome_override', module)
 .addDecorator(withScreenshot({
-  viewPort: {
-    width: 600,
-    height: 400,
-  },
+  viewPort: 'iPhone 100',
  }))
 .add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
 

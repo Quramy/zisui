@@ -48,9 +48,13 @@ function createOptions(): MainOptions {
   return opt;
 }
 
+const start = Date.now();
 const opt = createOptions();
 main(opt)
-.then()
+.then(() => {
+  const duration = Date.now() - start;
+  opt.logger.log(`Screenshot was ended successfully in ${opt.logger.color.green(duration + " msec")}.`);
+})
 .catch(err => {
   if (err instanceof Error) {
     opt.logger.error(err.message);

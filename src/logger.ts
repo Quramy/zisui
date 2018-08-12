@@ -21,6 +21,12 @@ export class Logger {
     console.log.apply(console, [this.color.cyan("info"), ...msg]);
   }
 
+  warn(...msg: string[]) {
+    if (this.level === "silent") return;
+    // tslint:disable-next-line: no-console
+    console.error.apply(console, [this.color.yellow("warn"), ...msg]);
+  }
+
   error(...msg: any[]) {
     if (this.level === "silent") return;
     // tslint:disable-next-line: no-console

@@ -80,3 +80,4 @@ typings/
 # End of https://www.gitignore.io/api/node
 lib/
 __screenshot__
+__screenshots__
