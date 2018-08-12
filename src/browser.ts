@@ -62,8 +62,9 @@ export class StorybookBrowser extends Browser {
 }
 
 export class PreviewBrowser extends Browser {
+  failedStories: (Story & { count: number })[] = [];
   private emitter: EventEmitter;
-  private currentStory?: { kind: string, story: string };
+  private currentStory?: { kind: string, story: string, count: number };
   private processedStories: { [key: string]: Story} = { };
   private tempBuffer?: Buffer;
 
@@ -138,8 +139,18 @@ export class PreviewBrowser extends Browser {
       };
       id = setTimeout(() => {
         this.emitter.removeAllListeners();
-        reject(new ScreenshotTimeoutError(20000, this.currentStory || { }));
-      }, 20000);
+        if (!this.currentStory) {
+          reject(new InvalidCurrentStoryStateError());
+          return;
+        }
+        if (this.currentStory.count < this.opt.captureMaxRetryCount) {
+          this.opt.logger.warn(`Capture timeout exceeded in ${this.opt.captureTimeout + ""} msec. Retry to screenshot this story after next sequence.`, this.currentStory.kind, this.currentStory.story, this.currentStory.count + 1);
+          this.failedStories.push({ ...this.currentStory, count: this.currentStory.count + 1 });
+          resolve();
+          return;
+        }
+        reject(new ScreenshotTimeoutError(this.opt.captureTimeout, this.currentStory));
+      }, this.opt.captureTimeout);
       this.emitter.once("screenshot", cb);
       this.emitter.once("skip", cb);
     }).then((buffer: Buffer | undefined) => {
@@ -153,8 +164,8 @@ export class PreviewBrowser extends Browser {
     });
   }
 
-  async setCurrentStory(kind: string, story: string) {
-    this.currentStory = { kind, story };
+  async setCurrentStory(kind: string, story: string, count: number ) {
+    this.currentStory = { kind, story, count };
     const data = {
       key: "storybook-channel",
       event: {

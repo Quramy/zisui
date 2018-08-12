@@ -15,13 +15,13 @@ export class Logger {
     console.log.apply(console, [this.color.gray("debug"), ...msg]);
   }
 
-  log(...msg: string[]) {
+  log(...msg: [(string | number | boolean)]) {
     if (this.level === "silent") return;
     // tslint:disable-next-line: no-console
     console.log.apply(console, [this.color.cyan("info"), ...msg]);
   }
 
-  warn(...msg: string[]) {
+  warn(...msg: (string | number | boolean)[]) {
     if (this.level === "silent") return;
     // tslint:disable-next-line: no-console
     console.error.apply(console, [this.color.yellow("warn"), ...msg]);

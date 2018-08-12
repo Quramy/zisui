@@ -23,3 +23,9 @@ storiesOf('Button', module)
       </span>
     </Button>
   ));
+
+// storiesOf('ButtonRandom', module)
+//   .add('with text', () => {
+//     if (Math.random() < .4) throw new Error();
+//     return <Button onClick={action('clicked')}>Hello Button</Button>;
+//   })

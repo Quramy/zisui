@@ -15,6 +15,8 @@ function createOptions(): MainOptions {
     .option("verbose", { boolean: true, default: false })
     .option("serverCmd", { string: true, default: "", description: "Command line to launch Storybook server." })
     .option("serverTimeout", { number: true, default: 20_000, description: "Timeout [msec] for starting Storybook server." })
+    .option("captureTimeout", { number: true, default: 5_000, description: "Timeout [msec] for capture a story." })
+    .option("captureMaxRetryCount", { number: true, default: 3, description: "Number to retry to capture." })
     .example("zisui http://localshot:9009", "")
     .example("zisui --serverCmd \"start-storybook -p 3000\" http://localshot:3000", "")
   ;
@@ -33,6 +35,8 @@ function createOptions(): MainOptions {
     verbose,
     serverTimeout,
     serverCmd,
+    captureTimeout,
+    captureMaxRetryCount,
     disableCssAnimation,
   } = setting.argv;
 
@@ -42,6 +46,8 @@ function createOptions(): MainOptions {
     parallel,
     serverCmd,
     serverTimeout,
+    captureTimeout,
+    captureMaxRetryCount,
     disableCssAnimation,
     logger: new Logger(verbose ? "verbose" : silent ? "silent" : "normal"),
   } as MainOptions;

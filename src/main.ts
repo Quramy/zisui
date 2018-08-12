@@ -1,12 +1,12 @@
 import { StoryKind } from "@storybook/addons";
 import { StorybookBrowser, PreviewBrowser } from "./browser";
-import { execParalell, flattenStories } from "./util";
+import { execParalell, flattenStories, Story } from "./util";
 import { MainOptions } from "./types";
 import { StorybookServer } from "./server";
 import { FileSystem } from "./file";
 
-async function bootPreviewBrowsers(opt: MainOptions, stories: StoryKind[]) {
-  const browsers = new Array(Math.min(opt.parallel, flattenStories(stories).length)).fill("").map((_, i) => new PreviewBrowser(opt, i));
+async function bootPreviewBrowsers(opt: MainOptions, stories: Story[]) {
+  const browsers = new Array(Math.min(opt.parallel, stories.length)).fill("").map((_, i) => new PreviewBrowser(opt, i));
   await browsers[0].boot();
   await Promise.all(browsers.slice(1, browsers.length).map(b => b.boot()));
   opt.logger.debug(`Started ${browsers.length} preview browsers`);
@@ -22,15 +22,15 @@ export async function main(opt: MainOptions) {
   await storybookServer.launchIfNeeded();
   await storybookBrowser.boot();
 
-  const stories = await storybookBrowser.getStories();
+  let stories = flattenStories(await storybookBrowser.getStories()).map(s => ({ ...s, count: 0 }));
   storybookBrowser.close();
 
-  const browsers = await bootPreviewBrowsers(opt, stories);
-
-  const tasks = flattenStories(stories)
-    .map(({ story, kind }) => {
+  while(stories.length > 0) {
+    const browsers = await bootPreviewBrowsers(opt, stories);
+    const tasks = stories
+    .map(({ story, kind, count }) => {
       return async (previewBrowser: PreviewBrowser) => {
-        await previewBrowser.setCurrentStory(kind, story);
+        await previewBrowser.setCurrentStory(kind, story, count );
         const { buffer } = await previewBrowser.screenshot();
         if (buffer) {
           await fileSystem.save(kind, story, buffer);
@@ -38,8 +38,10 @@ export async function main(opt: MainOptions) {
       };
     });
 
-  await execParalell(tasks, browsers);
+    await execParalell(tasks, browsers);
+    await browsers.map(b => b.close());
+    stories = browsers.reduce((acc, b) => [...acc, ...b.failedStories], [] as (Story & { count: number })[]);
+  }
 
-  browsers.map(b => b.close());
   storybookServer.shutdown();
 }

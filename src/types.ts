@@ -16,6 +16,8 @@ export interface MainOptions {
   storybookUrl: string;
   serverCmd: string;
   serverTimeout: number;
+  captureTimeout: number;
+  captureMaxRetryCount: number;
   outDir: string;
   disableCssAnimation: boolean;
   parallel: number;
