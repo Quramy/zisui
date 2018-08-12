@@ -1,4 +1,4 @@
-# zisui
+# zisui [![npm version](https://badge.fury.io/js/zisui.svg)](https://badge.fury.io/js/zisui) [![CircleCI](https://circleci.com/gh/Quramy/zisui.svg?style=svg)](https://circleci.com/gh/Quramy/zisui) 
 
 A fast and simple CLI to screenshot your Storybook.
 
