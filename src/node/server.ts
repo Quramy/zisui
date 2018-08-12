@@ -1,10 +1,13 @@
 import * as cp from "child_process";
 import waitOn = require("wait-on");
 import { MainOptions } from "./types";
-import { StorybookServerTimeoutError } from "./errors";
+import { StorybookServerTimeoutError, InvalidUrlError } from "./errors";
 
 function waitServer(url: string, timeout: number) {
-  const resource = url.replace(/^http/, "http-get");
+  if (!url.startsWith("http")) {
+    throw new InvalidUrlError(url);
+  }
+  const resource = url.startsWith("https") ? url.replace(/^https/, "https-get") : url.replace(/^http/, "http-get");
   return new Promise((resolve, reject) => {
     waitOn({ resources: [resource], timeout }, (err) => {
       if (err) {
