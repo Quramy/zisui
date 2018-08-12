@@ -40,6 +40,6 @@ export async function main(opt: MainOptions) {
 
   await execParalell(tasks, browsers);
 
-  browsers.map(b => b.close());
+  // browsers.map(b => b.close());
   storybookServer.shutdown();
 }

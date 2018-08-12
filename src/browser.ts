@@ -105,16 +105,17 @@ export class PreviewBrowser extends Browser {
     if (!this.currentStory) {
       this.emitter.emit("error", new InvalidCurrentStoryStateError());
     } else {
-      if (typeof opt.viewPort === "string") {
-        const hit = dd.find(d => d.name === opt.viewPort);
+      this.opt.logger.debug(`[cid: ${this.idx}]`, "Screenshot story:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
+      if (typeof opt.viewport === "string") {
+        const hit = dd.find(d => d.name === opt.viewport);
         if (!hit) {
-          this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewPort)} is not registered in 'puppeteer/DeviceDescriptor'.`);
+          this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewport)} is not registered in 'puppeteer/DeviceDescriptor'.`);
           this.emitter.emit("skip");
           return;
         }
         await this.page.setViewport(hit.viewport);
       } else {
-        await this.page.setViewport(opt.viewPort);
+        await this.page.setViewport(opt.viewport);
       }
       const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
       this.emitter.emit("screenshot", buffer);

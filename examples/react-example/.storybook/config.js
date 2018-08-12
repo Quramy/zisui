@@ -6,7 +6,7 @@ function loadStories() {
 }
 
 addDecorator(withScreenshot({
-  viewPort: {
+  viewport: {
     width: 1200,
     height: 800,
   }

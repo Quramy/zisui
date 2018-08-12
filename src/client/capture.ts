@@ -6,7 +6,7 @@ import { Story } from "../util";
 const defaultScreenshotOptions = {
   waitImages: true,
   waitFor: "",
-  viewPort: {
+  viewport: {
     width: 800,
     height: 600,
   },

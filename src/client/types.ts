@@ -1,7 +1,7 @@
 export type ScreenShotOptions = {
   waitImages: boolean,
   waitFor: string,
-  viewPort: {
+  viewport: {
     width: number,
     height: number,
     deviceScaleFactor?: number,
