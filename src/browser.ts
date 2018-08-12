@@ -14,6 +14,7 @@ import { ExposedWindow, MainOptions } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "./client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
 import { flattenStories, sleep, Story } from "./util";
+const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
 
 function url2story(url: string) {
   const q = parse(url).query || "";
@@ -63,6 +64,7 @@ export class StorybookBrowser extends Browser {
 
 export class PreviewBrowser extends Browser {
   failedStories: (Story & { count: number })[] = [];
+  private viewport?: Viewport;
   private emitter: EventEmitter;
   private currentStory?: { kind: string, story: string, count: number };
   private processedStories: { [key: string]: Story} = { };
@@ -94,6 +96,14 @@ export class PreviewBrowser extends Browser {
 }
         `,
       });
+      await this.page.addScriptTag({
+        content: `
+const $doc = document;
+const $style = $doc.createElement('style');
+$style.innerHTML = "body *, body *::before, body *::after { transition: none !important; animation: none !important; caret-color: transparent !important; }";
+$doc.body.appendChild($style);
+        `
+      });
     }
   }
 
@@ -103,7 +113,6 @@ export class PreviewBrowser extends Browser {
   }
 
   async screenshotCallback(opt: ScreenShotOptionsForApp) {
-    const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
     if (!this.currentStory) {
       this.emitter.emit("error", new InvalidCurrentStoryStateError());
       return;
@@ -114,26 +123,15 @@ export class PreviewBrowser extends Browser {
     }
     this.processedStories[this.currentStory.kind + this.currentStory.story] = this.currentStory;
     this.opt.logger.debug(`[cid: ${this.idx}]`, "Start to process to screenshot story:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
-    if (typeof opt.viewport === "string") {
-      const hit = dd.find(d => d.name === opt.viewport);
-      if (!hit) {
-        this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewport)} is not registered in 'puppeteer/DeviceDescriptor'.`);
-        this.emitter.emit("skip");
-        return;
-      }
-      await this.page.setViewport(hit.viewport);
-    } else {
-      await this.page.setViewport(opt.viewport);
-    }
+    this.emitter.emit("screenshot", opt);
     const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
-    this.emitter.emit("screenshot", buffer);
   }
 
-  screenshot() {
-    return new Promise<Buffer>((resolve, reject) => {
+  private waitScreenShotOption() {
+    return new Promise<ScreenShotOptions | undefined>((resolve, reject) => {
       let id: NodeJS.Timer;
-      const cb = (buffer?: Buffer) => {
-        resolve(buffer);
+      const cb = (opt?: ScreenShotOptions) => {
+        resolve(opt);
         this.emitter.removeAllListeners();
         clearTimeout(id);
       };
@@ -144,7 +142,7 @@ export class PreviewBrowser extends Browser {
           return;
         }
         if (this.currentStory.count < this.opt.captureMaxRetryCount) {
-          this.opt.logger.warn(`Capture timeout exceeded in ${this.opt.captureTimeout + ""} msec. Retry to screenshot this story after next sequence.`, this.currentStory.kind, this.currentStory.story, this.currentStory.count + 1);
+          this.opt.logger.warn(`Capture timeout exceeded in ${this.opt.captureTimeout + ""} msec. Retry to screenshot this story after this sequence.`, this.currentStory.kind, this.currentStory.story, this.currentStory.count + 1);
           this.failedStories.push({ ...this.currentStory, count: this.currentStory.count + 1 });
           resolve();
           return;
@@ -153,15 +151,44 @@ export class PreviewBrowser extends Browser {
       }, this.opt.captureTimeout);
       this.emitter.once("screenshot", cb);
       this.emitter.once("skip", cb);
-    }).then((buffer: Buffer | undefined) => {
-      if (!this.currentStory) {
-        throw new Error("Fail to screenshot. The current story is not set");
-      }
-      return {
-        ...this.currentStory,
-        buffer,
-      };
     });
+  }
+
+  private async setViewport(opt: ScreenShotOptions) {
+    let nextViewport: Viewport;
+    if (typeof opt.viewport === "string") {
+      const hit = dd.find(d => d.name === opt.viewport);
+      if (!hit) {
+        this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewport)} is not registered in 'puppeteer/DeviceDescriptor'.`);
+        return false;
+      }
+      nextViewport = hit.viewport;
+      // await this.page.setViewport(hit.viewport);
+    } else {
+      nextViewport = opt.viewport;
+    }
+    if (!this.viewport || JSON.stringify(this.viewport) !== JSON.stringify(nextViewport)) {
+      this.opt.logger.debug(`[cid: ${this.idx}]`, "Change viewport", JSON.stringify(nextViewport));
+      await this.page.setViewport(nextViewport);
+      await sleep(100);
+      this.viewport = nextViewport;
+    }
+    return true;
+  }
+
+  async screenshot() {
+    const opt = await this.waitScreenShotOption();
+    if (!this.currentStory) {
+      throw new Error("Fail to screenshot. The current story is not set");
+    }
+    if (!opt) {
+      return { ...this.currentStory, buffer: null };
+    }
+
+    const succeeded = await this.setViewport(opt);
+    if (!succeeded) return { ...this.currentStory, buffer: null };
+    const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
+    return { ...this.currentStory, buffer };
   }
 
   async setCurrentStory(kind: string, story: string, count: number ) {
