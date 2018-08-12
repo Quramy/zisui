@@ -7,7 +7,9 @@ import { Logger } from "./logger";
 
 function createOptions(): MainOptions {
   const setting = yargs
-    .usage("zisui storybook_url")
+    .locale("en")
+    .wrap(120)
+    .usage("usage: zisui [options] storybook_url")
     .option("outDir", { string: true, alias: "o", default: "__screenshots__", description: "Output directory." })
     .option("parallel", { number: true, alias: "p", default: 4, description: "Number of browsers to screenshot." })
     .option("disableCssAnimation", { boolean: true, default: true, description: "Disable CSS animation and transition." })
