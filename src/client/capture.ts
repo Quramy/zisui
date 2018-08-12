@@ -1,9 +1,10 @@
 import { ExposedWindow } from "../types";
 import { ScreenShotOptions } from "./types";
 import imagesloaded from "imagesloaded";
-import { Story } from "../util";
+import { Story, sleep } from "../util";
 
 const defaultScreenshotOptions = {
+  delay: 0,
   waitImages: true,
   waitFor: "",
   viewport: {
@@ -72,6 +73,7 @@ export function capture() {
       const scOpt = options.reduce((acc: ScreenShotOptions, opt: Partial<ScreenShotOptions>) => ({ ...acc, ...opt }), defaultScreenshotOptions);
       Promise.resolve()
         .then(() => waitImages(scOpt.waitImages))
+        .then(() => sleep(scOpt.delay))
         .then(() => waitUserFunction(scOpt.waitFor, win))
         .then(() => waitNextIdl(win))
         .then(() => win.emitCatpture(scOpt));

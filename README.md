@@ -74,6 +74,7 @@ A Storybook decorator to notify *zisui* to screenshot stories.
 ```
 type ScreenShotOptions = {
   waitImages?: boolean,   // default true
+  delay?: number,         // default 0 msec
   waitFor?: string,       // default ""
   viewport?: string | {
     width: number,        // default 800

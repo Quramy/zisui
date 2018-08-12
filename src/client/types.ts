@@ -1,4 +1,5 @@
 export type ScreenShotOptions = {
+  delay: number,
   waitImages: boolean,
   waitFor: string,
   viewport: {
