@@ -81,6 +81,7 @@ export class PreviewBrowser extends Browser {
   async boot() {
     await super.boot();
     await this.expose();
+    await this.addStyles();
     await this.openPage(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
     await this.addStyles();
     return this;
@@ -155,6 +156,9 @@ $doc.body.appendChild($style);
   }
 
   private async setViewport(opt: ScreenShotOptions) {
+    if (!this.currentStory) {
+      throw new InvalidCurrentStoryStateError();
+    }
     let nextViewport: Viewport;
     if (typeof opt.viewport === "string") {
       const hit = dd.find(d => d.name === opt.viewport);
@@ -163,15 +167,17 @@ $doc.body.appendChild($style);
         return false;
       }
       nextViewport = hit.viewport;
-      // await this.page.setViewport(hit.viewport);
     } else {
       nextViewport = opt.viewport;
     }
     if (!this.viewport || JSON.stringify(this.viewport) !== JSON.stringify(nextViewport)) {
       this.opt.logger.debug(`[cid: ${this.idx}]`, "Change viewport", JSON.stringify(nextViewport));
       await this.page.setViewport(nextViewport);
-      await sleep(100);
       this.viewport = nextViewport;
+      if (this.opt.reloadAfterChangeViewport) {
+        delete this.processedStories[this.currentStory.kind + this.currentStory.story];
+        await Promise.all([this.page.reload(), this.waitScreenShotOption()]);
+      }
     }
     return true;
   }
@@ -179,7 +185,7 @@ $doc.body.appendChild($style);
   async screenshot() {
     const opt = await this.waitScreenShotOption();
     if (!this.currentStory) {
-      throw new Error("Fail to screenshot. The current story is not set");
+      throw new InvalidCurrentStoryStateError();
     }
     if (!opt) {
       return { ...this.currentStory, buffer: null };

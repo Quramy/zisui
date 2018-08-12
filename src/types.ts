@@ -18,6 +18,7 @@ export interface MainOptions {
   serverTimeout: number;
   captureTimeout: number;
   captureMaxRetryCount: number;
+  reloadAfterChangeViewport: boolean;
   outDir: string;
   disableCssAnimation: boolean;
   parallel: number;

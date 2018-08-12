@@ -17,6 +17,7 @@ function createOptions(): MainOptions {
     .option("serverTimeout", { number: true, default: 20_000, description: "Timeout [msec] for starting Storybook server." })
     .option("captureTimeout", { number: true, default: 5_000, description: "Timeout [msec] for capture a story." })
     .option("captureMaxRetryCount", { number: true, default: 3, description: "Number to retry to capture." })
+    .option("reloadAfterChangeViewport", { boolean: true, default: false, description: "Whether to reload after viewport changed." })
     .example("zisui http://localshot:9009", "")
     .example("zisui --serverCmd \"start-storybook -p 3000\" http://localshot:3000", "")
   ;
@@ -37,6 +38,7 @@ function createOptions(): MainOptions {
     serverCmd,
     captureTimeout,
     captureMaxRetryCount,
+    reloadAfterChangeViewport,
     disableCssAnimation,
   } = setting.argv;
 
@@ -48,6 +50,7 @@ function createOptions(): MainOptions {
     serverTimeout,
     captureTimeout,
     captureMaxRetryCount,
+    reloadAfterChangeViewport,
     disableCssAnimation,
     logger: new Logger(verbose ? "verbose" : silent ? "silent" : "normal"),
   } as MainOptions;
