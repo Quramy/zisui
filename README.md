@@ -57,10 +57,31 @@ storiesOf('SomeKind', module)
 
 ### CLI options
 
-```txt
 <!-- inject:clihelp -->
-<!-- endinject -->
+```txt
+usage: zisui [options] storybook_url
+
+Options:
+  --help                       Show help                                                                       [boolean]
+  --version                    Show version number                                                             [boolean]
+  --outDir, -o                 Output directory.                                   [string] [default: "__screenshots__"]
+  --parallel, -p               Number of browsers to screenshot.                                   [number] [default: 4]
+  --disableCssAnimation        Disable CSS animation and transition.                           [boolean] [default: true]
+  --silent                                                                                    [boolean] [default: false]
+  --verbose                                                                                   [boolean] [default: false]
+  --serverCmd                  Command line to launch Storybook server.                           [string] [default: ""]
+  --serverTimeout              Timeout [msec] for starting Storybook server.                   [number] [default: 20000]
+  --captureTimeout             Timeout [msec] for capture a story.                              [number] [default: 5000]
+  --captureMaxRetryCount       Number to retry to capture.                                         [number] [default: 3]
+  --viewportDelay              Delay time [msec] between changing viewport and capturing.        [number] [default: 300]
+  --reloadAfterChangeViewport  Whether to reload after viewport changed.                      [boolean] [default: false]
+
+Examples:
+  zisui http://localshot:9009
+  zisui --serverCmd "start-storybook -p 3000" http://localshot:3000
+
 ```
+<!-- endinject -->
 
 ### API
 

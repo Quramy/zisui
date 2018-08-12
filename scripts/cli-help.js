@@ -13,7 +13,9 @@ const [_, tail] = tmp.split("<!-- endinject -->");
 
 const help = execSync("node lib/node/cli.js --help");
 const out = `${head}<!-- inject:clihelp -->
+${mark}txt
 ${help}
+${mark}
 <!-- endinject -->${tail}`
 
-fs.writeFileSync(out, path.join(__dirname, "../README.md"), "utf8");
+fs.writeFileSync(path.join(__dirname, "../README.md"), out, "utf8");

@@ -9,6 +9,7 @@ function createOptions(): MainOptions {
   const setting = yargs
     .locale("en")
     .wrap(120)
+    .version(require("../../package.json").version)
     .usage("usage: zisui [options] storybook_url")
     .option("outDir", { string: true, alias: "o", default: "__screenshots__", description: "Output directory." })
     .option("parallel", { number: true, alias: "p", default: 4, description: "Number of browsers to screenshot." })
