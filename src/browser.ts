@@ -177,6 +177,8 @@ $doc.body.appendChild($style);
       if (this.opt.reloadAfterChangeViewport) {
         delete this.processedStories[this.currentStory.kind + this.currentStory.story];
         await Promise.all([this.page.reload(), this.waitScreenShotOption()]);
+      } else {
+        await sleep(this.opt.viewportDelay);
       }
     }
     return true;
