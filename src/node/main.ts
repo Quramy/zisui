@@ -1,6 +1,6 @@
 import { StoryKind } from "@storybook/addons";
 import { StorybookBrowser, PreviewBrowser } from "./browser";
-import { execParalell, flattenStories, Story } from "./util";
+import { execParalell, flattenStories, Story } from "../util";
 import { MainOptions } from "./types";
 import { StorybookServer } from "./server";
 import { FileSystem } from "./file";

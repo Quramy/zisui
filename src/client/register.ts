@@ -1,5 +1,5 @@
 import addoons from "@storybook/addons";
-import { ExposedWindow } from "../types";
+import { ExposedWindow } from "../node/types";
 
 addoons.register("zisui", api => {
 

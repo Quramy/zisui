@@ -1,6 +1,6 @@
 {
   "name": "react-example",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "react": "^16.4.2",
@@ -12,7 +12,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "zisui:all": "yarn prestorybook && node node_modules/zisui/lib/cli.js --server-cmd \"start-storybook -p 9009 -s public\" \"http://localhost:9009\"",
+    "zisui:all": "yarn prestorybook && node node_modules/zisui/lib/node/cli.js --server-cmd \"start-storybook -p 9009 -s public\" \"http://localhost:9009\"",
     "storybook:start": "start-storybook -p 9009 -s public",
     "storybook": "start-storybook -p 9009 -s public",
     "build:lib": "cd ../../ && yarn build",

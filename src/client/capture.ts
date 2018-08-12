@@ -1,4 +1,4 @@
-import { ExposedWindow } from "../types";
+import { ExposedWindow } from "../node/types";
 import { ScreenShotOptions } from "./types";
 import imagesloaded from "imagesloaded";
 import { Story, sleep } from "../util";

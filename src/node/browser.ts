@@ -11,9 +11,9 @@ import {
 } from "puppeteer";
 
 import { ExposedWindow, MainOptions } from "./types";
-import { ScreenShotOptions, ScreenShotOptionsForApp } from "./client/types";
+import { ScreenShotOptions, ScreenShotOptionsForApp } from "../client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
-import { flattenStories, sleep, Story } from "./util";
+import { flattenStories, sleep, Story } from "../util";
 const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
 
 function url2story(url: string) {

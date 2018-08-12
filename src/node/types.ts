@@ -1,7 +1,7 @@
 import { StoryKind } from "@storybook/addons";
-import { ScreenShotOptions } from "./client/types";
+import { ScreenShotOptions } from "../client/types";
 import { Logger } from "./logger";
-import { Story } from "./util";
+import { Story } from "../util";
 
 export type ExposedWindow = typeof window & {
   stories?: StoryKind[],
