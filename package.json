@@ -11,6 +11,7 @@
     "build": "tsc",
     "lint": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "prepare": "yarn build",
+    "clihelp": ""
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

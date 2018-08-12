@@ -57,7 +57,10 @@ storiesOf('SomeKind', module)
 
 ### CLI options
 
-Run `zisui --help` .
+```txt
+<!-- inject:clihelp -->
+<!-- endinject -->
+```
 
 ### API
 
