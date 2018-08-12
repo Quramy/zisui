@@ -1,6 +1,6 @@
 {
   "name": "zisui",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0",
   "description": "Fast and simple storybook screenshooter.",
   "bin": {
     "zisui": "lib/node/cli.js"
@@ -8,10 +8,11 @@
   "typings": "lib/client/index.d.ts",
   "main": "lib/client/index.js",
   "scripts": {
+    "clean": "rimraf lib",
     "build": "tsc",
     "lint": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "clihelp": "node scripts/cli-help.js",
-    "prepare": "yarn build && clihelp",
+    "prepare": "yarn clean && yarn build && yarn clihelp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
