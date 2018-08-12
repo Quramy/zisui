@@ -1,13 +1,14 @@
-import chalk from "chalk";
+import chalk, { Chalk } from "chalk";
 
 export type LogLevel = "verbose" | "silent" | "normal";
 
 export class Logger {
 
-  constructor(public level: LogLevel = "normal") {
-  }
+  color: Chalk;
 
-  color = chalk.constructor({ level: 1 });
+  constructor(public level: LogLevel = "normal") {
+    this.color = new chalk.constructor({ level: 1 });
+  }
 
   debug(...msg: any[]) {
     if (this.level !== "verbose") return;
