@@ -7,7 +7,7 @@ export class Logger {
   constructor(public level: LogLevel = "normal") {
   }
 
-  color = chalk;
+  color = chalk.constructor({ level: 1 });
 
   debug(...msg: any[]) {
     if (this.level !== "verbose") return;
