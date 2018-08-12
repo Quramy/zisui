@@ -1,10 +1,15 @@
 #!/bin/bash
 
-cd examples/react-example
+pushd examples/react-example
 yarn --pure-lockfile
 yarn clear
 yarn zisui:all
 code=$?
-find __screenshot__ -name "*.png"
-cd ..
+img_count=$(find __screenshots__ -name "*.png" | wc -l)
+if [ "$img_count" -eq 0 ]; then
+  popd
+  exit 1
+fi
+echo "E2E test was ended successfully 🎉"
+popd > /dev/null
 exit $code
