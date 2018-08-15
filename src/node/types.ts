@@ -26,5 +26,6 @@ export interface MainOptions {
   outDir: string;
   disableCssAnimation: boolean;
   parallel: number;
+  metricsWatchRetryCount: number;
   logger: Logger;
 }
