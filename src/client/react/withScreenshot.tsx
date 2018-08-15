@@ -2,6 +2,7 @@ import React, { Fragment } from "react";
 import addons, { StoryKind } from "@storybook/addons";
 import { capture, stock } from "../capture";
 import { ScreenShotOptions } from "../types";
+import { ExposedWindow } from "../../node/types";
 
 type Props = {
   screenshotOptions?: Partial<ScreenShotOptions>,
@@ -36,10 +37,11 @@ export function withScreenshot(opt: Partial<ScreenShotOptions> = { }) {
       return <ScreenshotDecorator{...props}>{storyFn(context)}</ScreenshotDecorator>;
     };
 
-    if (ctx != null) {
+    if (ctx) {
       return wrapperWithContext(ctx);
     }
 
+    (window as ExposedWindow).zisuiManaged = true;
     return (context: StoryKind) => wrapperWithContext(context);
   };
 }

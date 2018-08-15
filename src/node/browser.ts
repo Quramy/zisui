@@ -55,7 +55,17 @@ export class StorybookBrowser extends Browser {
   async getStories() {
     this.opt.logger.debug("Wait for stories definition.");
     await this.openPage(this.opt.storybookUrl);
-    const stories = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as StoryKind[];
+    const registered: boolean | undefined = await this.page.evaluate(() => (window as any).__ZISUI_REGISTERED__);
+    let stories: StoryKind[];
+    if (registered) {
+      stories = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as StoryKind[];
+    } else {
+      await this.page.goto(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
+      await this.page.waitFor(() => (window as ExposedWindow).__STORYBOOK_CLIENT_API__);
+      stories = await this.page.evaluate(
+        () => (window as ExposedWindow).__STORYBOOK_CLIENT_API__.getStorybook().map(({ kind, stories }) => ({ kind, stories: stories.map(s => s.name) }))
+      );
+    }
     this.opt.logger.debug(stories);
     this.opt.logger.log(`Found ${this.opt.logger.color.green(flattenStories(stories).length + "")} stories.`);
     return stories;
@@ -64,6 +74,7 @@ export class StorybookBrowser extends Browser {
 
 export class PreviewBrowser extends Browser {
   failedStories: (Story & { count: number })[] = [];
+  private mode!: "managed" | "simple";
   private viewport?: Viewport;
   private emitter: EventEmitter;
   private currentStory?: { kind: string, story: string, count: number };
@@ -84,6 +95,8 @@ export class PreviewBrowser extends Browser {
     await this.addStyles();
     await this.openPage(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
     await this.addStyles();
+    const managed = await this.page.evaluate(() => (window as ExposedWindow).zisuiManaged);
+    this.mode = managed ? "managed" : "simple";
     return this;
   }
 
@@ -185,17 +198,28 @@ $doc.body.appendChild($style);
   }
 
   async screenshot() {
-    const opt = await this.waitScreenShotOption();
-    if (!this.currentStory) {
-      throw new InvalidCurrentStoryStateError();
-    }
-    if (!opt) {
-      return { ...this.currentStory, buffer: null };
+    let opt: ScreenShotOptions | undefined = {
+      viewport: { width: 800, height: 600 },
+      delay: 0,
+      waitFor: "",
+      waitImages: false,
+      fullPage: true,
+    };
+    if (this.mode === "managed") {
+      opt = await this.waitScreenShotOption();
+      if (!this.currentStory) {
+        throw new InvalidCurrentStoryStateError();
+      }
+      if (!opt) {
+        return { ...this.currentStory, buffer: null };
+      }
+    } else {
+      sleep(400);
     }
 
     const succeeded = await this.setViewport(opt);
     if (!succeeded) return { ...this.currentStory, buffer: null };
-    const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
+    const buffer = await this.page.screenshot({ fullPage: opt ? opt.fullPage : true });
     return { ...this.currentStory, buffer };
   }
 
