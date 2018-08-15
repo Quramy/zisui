@@ -28,8 +28,6 @@ class ScreenshotDecorator extends React.Component<Props> {
 
 export function withScreenshot(opt: Partial<ScreenShotOptions> = { }) {
   return (storyFn: Function, ctx: StoryKind | undefined) => {
-    const channel = addons.getChannel();
-
     const wrapperWithContext = (context: any) => {
       const props = {
         screenshotOptions: opt,
