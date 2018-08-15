@@ -86,7 +86,8 @@ Options:
   --serverCmd                  Command line to launch Storybook server.                           [string] [default: ""]
   --serverTimeout              Timeout [msec] for starting Storybook server.                   [number] [default: 20000]
   --captureTimeout             Timeout [msec] for capture a story.                              [number] [default: 5000]
-  --captureMaxRetryCount       Number to retry to capture.                                         [number] [default: 3]
+  --captureMaxRetryCount       Number of count to retry to capture.                                [number] [default: 3]
+  --metricsWatchRetryCount     Number of count to retry until browser metrics stable.           [number] [default: 1000]
   --viewportDelay              Delay time [msec] between changing viewport and capturing.        [number] [default: 300]
   --reloadAfterChangeViewport  Whether to reload after viewport changed.                      [boolean] [default: false]
 
