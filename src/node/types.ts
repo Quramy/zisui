@@ -13,6 +13,7 @@ export type ExposedWindow = typeof window & {
 };
 
 export interface MainOptions {
+  showBrowser: boolean;
   storybookUrl: string;
   serverCmd: string;
   serverTimeout: number;

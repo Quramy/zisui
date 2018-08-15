@@ -39,9 +39,10 @@ export async function main(opt: MainOptions) {
     });
 
     await execParalell(tasks, browsers);
+    if (opt.showBrowser) break;
     await browsers.map(b => b.close());
     stories = browsers.reduce((acc, b) => [...acc, ...b.failedStories], [] as (Story & { count: number })[]);
   }
 
-  storybookServer.shutdown();
+  if (!opt.showBrowser) storybookServer.shutdown();
 }

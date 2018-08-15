@@ -58,6 +58,7 @@ function createOptions(): MainOptions {
     viewportDelay,
     reloadAfterChangeViewport,
     disableCssAnimation,
+    showBrowser: process.env["ZISUI_SHOW"] === "enabled",
     logger: new Logger(verbose ? "verbose" : silent ? "silent" : "normal"),
   } as MainOptions;
   return opt;
