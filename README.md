@@ -2,29 +2,39 @@
 
 A fast and simple CLI to screenshot your Storybook.
 
+![capture](capture.gif)
+
 ## Install
 
 ```sh
 $ npm install zisui
 ```
 
-## Usage
+## How to use
+*zisui* runs with 2 modes. One is "simple" and another is "managed".
 
-If your Storybook server is already started, simply run:
+With the simple mode, you don't need to configure your Storybook. Give an URL, such as:
 
 ```sh
-$ zisui <storybook_url>
+$ zisui http://localhost:9001
 ```
 
-You can launch your storybook server within `zisui` via the following example:
+You can launch your server via `--serverCmd` option.
 
 ```
-$ zisui --serverCmd "start-storybook -p 3001" http://localhost:3001
+$ zisui --serverCmd "start-storybook -p 9001" http://localhost:9001
 ```
 
-## Configure
+Also, *zisui* can crawls built and hosted Storybook pages:
 
-First, you need to register this as a Storybook addon.
+```sh
+$ zisui http://release-3-4--storybooks-vue.netlify.com
+```
+
+### Managed mode
+If you want to control how stories are captured (timing or size or etc...), use managed mode.
+
+First, you need to register *zisui* Storybook addon.
 
 ```js
 /* .storybook/addons.js */
@@ -32,7 +42,7 @@ First, you need to register this as a Storybook addon.
 import 'zisui/register';
 ```
 
-Second, using `withScreenshot` decorator to tell how *zisui* captures your stories.
+Next, use `withScreenshot` decorator to tell how *zisui* captures your stories.
 
 ```js
 /* .storybook/config.js */
@@ -42,7 +52,7 @@ import { withScreenshot } from 'zisui';
 addDecorator(withScreenshot());
 ```
 
-Also you can decorate some specific stories.
+And you can overwrite the global screenshot options by decorating to specific stories.
 
 ```js
 storiesOf('SomeKind', module)
@@ -54,6 +64,10 @@ storiesOf('SomeKind', module)
  }))
 .add('a story', () => /* your story component */);
 ```
+
+*Note*
+
+Now, the `withScreenshot` decorator supports React only.
 
 ### CLI options
 
@@ -123,11 +137,6 @@ type ScreenShotOptions = {
 ```js
   withScreenshot({ waitFor: 'myWait' }) // wait for 5 seconds.
 ```
-
-### Remarks
-
-#### CSS animation
-By default *zisui* disables CSS animation and transition to stabilize screenshot images. You can turn off via `--no-disableCssAnimatin`.
 
 ## License
 MIT

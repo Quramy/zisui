@@ -27,7 +27,7 @@ export class StorybookServer {
   }
 
   async launchIfNeeded() {
-    this.opt.logger.log(`Wait for starting storybook server ${this.opt.logger.color.green(this.opt.storybookUrl)}.`);
+    this.opt.logger.log(`Wait for connecting storybook server ${this.opt.logger.color.green(this.opt.storybookUrl)}.`);
     if (this.opt.serverCmd) {
       const [cmd, ...args] = this.opt.serverCmd.split(/\s+/);
       const stdio = this.opt.logger.level === "verbose" ? [0, 1, 2]: [];
@@ -35,7 +35,11 @@ export class StorybookServer {
       this.opt.logger.debug("Server process created", this.proc.pid);
     }
     await waitServer(this.opt.storybookUrl, this.opt.serverTimeout);
-    this.opt.logger.debug("Storybook server started");
+    if (this.opt.serverCmd) {
+      this.opt.logger.debug("Storybook server started");
+    } else {
+      this.opt.logger.debug("Found Storybook server");
+    }
   }
 
   async shutdown() {

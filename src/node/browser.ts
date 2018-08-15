@@ -8,6 +8,7 @@ import {
   Browser as PuppeteerBrowser,
   Page,
   Viewport,
+  Metrics,
 } from "puppeteer";
 
 import { ExposedWindow, MainOptions } from "./types";
@@ -21,6 +22,45 @@ function url2story(url: string) {
   const { selectedKind: kind, selectedStory: story } = querystring.parse(q);
   if (!kind || Array.isArray(kind) || !story || Array.isArray(story)) return;
   return { kind, story };
+}
+
+class MetricsWatcher {
+
+  private length = 3;
+  private previous: Metrics[] = [];
+
+  constructor(private page: Page, private count: number) { }
+
+  async waitForStable() {
+    for (let i = this.count; i > 0; --i) {
+      if (await this.check()) return i;
+      sleep(20);
+    }
+    return 0;
+  }
+
+  private async check() {
+    const current = await this.page.metrics();
+    if (this.previous.length < this.length) return this.next(current);
+    if (this.diff("Nodes")) return this.next(current);
+    if (this.diff("RecalcStyleCount")) return this.next(current);
+    if (this.diff("LayoutCount")) return this.next(current);
+    return true;
+  }
+
+  private diff (k: keyof Metrics) {
+    for (let i = 1; i < this.previous.length; ++i) {
+      if (this.previous[i][k] !== this.previous[0][k]) return true;
+    }
+    return false;
+  }
+
+  private next(m: Metrics) {
+    this.previous.push(m);
+    this.previous = this.previous.slice(-this.length);
+    return false;
+  }
+
 }
 
 export class Browser {
@@ -55,7 +95,17 @@ export class StorybookBrowser extends Browser {
   async getStories() {
     this.opt.logger.debug("Wait for stories definition.");
     await this.openPage(this.opt.storybookUrl);
-    const stories = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as StoryKind[];
+    const registered: boolean | undefined = await this.page.evaluate(() => (window as any).__ZISUI_REGISTERED__);
+    let stories: StoryKind[];
+    if (registered) {
+      stories = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as StoryKind[];
+    } else {
+      await this.page.goto(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
+      await this.page.waitFor(() => (window as ExposedWindow).__STORYBOOK_CLIENT_API__);
+      stories = await this.page.evaluate(
+        () => (window as ExposedWindow).__STORYBOOK_CLIENT_API__.getStorybook().map(({ kind, stories }) => ({ kind, stories: stories.map(s => s.name) }))
+      );
+    }
     this.opt.logger.debug(stories);
     this.opt.logger.log(`Found ${this.opt.logger.color.green(flattenStories(stories).length + "")} stories.`);
     return stories;
@@ -64,6 +114,7 @@ export class StorybookBrowser extends Browser {
 
 export class PreviewBrowser extends Browser {
   failedStories: (Story & { count: number })[] = [];
+  private mode!: "managed" | "simple";
   private viewport?: Viewport;
   private emitter: EventEmitter;
   private currentStory?: { kind: string, story: string, count: number };
@@ -84,6 +135,8 @@ export class PreviewBrowser extends Browser {
     await this.addStyles();
     await this.openPage(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
     await this.addStyles();
+    const managed = await this.page.evaluate(() => (window as ExposedWindow).zisuiManaged);
+    this.mode = managed ? "managed" : "simple";
     return this;
   }
 
@@ -184,18 +237,37 @@ $doc.body.appendChild($style);
     return true;
   }
 
-  async screenshot() {
-    const opt = await this.waitScreenShotOption();
-    if (!this.currentStory) {
-      throw new InvalidCurrentStoryStateError();
+  private async waitBrowserMetricsStable() {
+    const mw = new MetricsWatcher(this.page, this.opt.metricsWatchRetryCount);
+    const count = await mw.waitForStable();
+    this.opt.logger.debug(`Retry to watch metrics ${this.opt.metricsWatchRetryCount - count} times.`);
+    if (count <= 0) {
+      this.opt.logger.warn(`Metrics is not stable while ${this.opt.metricsWatchRetryCount} times. ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))}`);
     }
-    if (!opt) {
-      return { ...this.currentStory, buffer: null };
-    }
+  }
 
+  async screenshot() {
+    let opt: ScreenShotOptions | undefined = {
+      viewport: { width: 800, height: 600 },
+      delay: 0,
+      waitFor: "",
+      waitImages: false,
+      fullPage: true,
+    };
+    if (this.mode === "managed") {
+      opt = await this.waitScreenShotOption();
+      if (!this.currentStory) {
+        throw new InvalidCurrentStoryStateError();
+      }
+      if (!opt) {
+        return { ...this.currentStory, buffer: null };
+      }
+    }
     const succeeded = await this.setViewport(opt);
     if (!succeeded) return { ...this.currentStory, buffer: null };
-    const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
+    await this.waitBrowserMetricsStable();
+    await this.page.evaluate(() => new Promise(res => (window as ExposedWindow).requestIdleCallback(() => res(), { timeout: 3000 })));
+    const buffer = await this.page.screenshot({ fullPage: opt ? opt.fullPage : true });
     return { ...this.currentStory, buffer };
   }
 

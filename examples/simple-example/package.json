@@ -1,0 +1,34 @@
+{
+  "name": "react-example",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-scripts": "1.1.4"
+  },
+  "scripts": {
+    "clear": "rimraf __screenshots__",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "zisui:all": "yarn prestorybook && node node_modules/zisui/lib/node/cli.js --server-cmd \"start-storybook -p 9009 -s public\" \"http://localhost:9009\"",
+    "storybook:start": "start-storybook -p 9009 -s public",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build:lib": "cd ../../ && yarn build",
+    "prestorybook": "yarn build:lib && rimraf node_modules/zisui && mkdirp node_modules/zisui && cp ../../package.json node_modules/zisui && cp -rf ../../lib node_modules/zisui && cp ../../register.js node_modules/zisui",
+    "build-storybook": "build-storybook -s public"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^3.4.10",
+    "@storybook/addon-links": "^3.4.10",
+    "@storybook/addon-viewport": "^3.4.10",
+    "@storybook/addons": "^3.4.10",
+    "@storybook/cli": "^3.4.10",
+    "@storybook/react": "^3.4.10",
+    "babel-core": "^6.26.3",
+    "babel-runtime": "^6.26.0",
+    "rimraf": "^2.6.2"
+  }
+}
