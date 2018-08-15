@@ -92,8 +92,8 @@ Options:
   --reloadAfterChangeViewport  Whether to reload after viewport changed.                      [boolean] [default: false]
 
 Examples:
-  zisui http://localshot:9009
-  zisui --serverCmd "start-storybook -p 3000" http://localshot:3000
+  zisui http://localhost:9009
+  zisui --serverCmd "start-storybook -p 3000" http://localhost:3000
 
 ```
 <!-- endinject -->
