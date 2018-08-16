@@ -38,9 +38,10 @@ export async function main(opt: MainOptions) {
     .map(({ story, kind, count }) => {
       return async (previewBrowser: PreviewBrowser) => {
         await previewBrowser.setCurrentStory(kind, story, count );
-        const { buffer } = await previewBrowser.screenshot();
+        const { buffer, elapsedTime } = await previewBrowser.screenshot();
         if (buffer) {
-          await fileSystem.save(kind, story, buffer);
+          const path = await fileSystem.save(kind, story, buffer);
+          opt.logger.log(`Screenshot stored: ${opt.logger.color.magenta(path)} in ${elapsedTime + "" || "--"} msec.`);
         }
       };
     });

@@ -117,8 +117,8 @@ export class PreviewBrowser extends Browser {
   private viewport?: Viewport;
   private emitter: EventEmitter;
   private currentStory?: { kind: string, story: string, count: number };
+  private processStartTime = 0;
   private processedStories: { [key: string]: Story} = { };
-  private tempBuffer?: Buffer;
 
   constructor(mainOptions: MainOptions, private mode: ZisuiRunMode, private idx: number) {
     super(mainOptions);
@@ -126,6 +126,10 @@ export class PreviewBrowser extends Browser {
     this.emitter.on("error", e => {
       throw e;
     });
+  }
+
+  private debug(...args: any[]) {
+    this.opt.logger.debug.apply(this.opt.logger, [`[cid: ${this.idx}]`, ...args]);
   }
 
   async boot() {
@@ -169,11 +173,11 @@ $doc.body.appendChild($style);
       return;
     }
     if (this.processedStories[this.currentStory.kind + this.currentStory.story]) {
-      this.opt.logger.debug(`[cid: ${this.idx}]`, "This story was already processed:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
+      this.debug("This story was already processed:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
       return;
     }
     this.processedStories[this.currentStory.kind + this.currentStory.story] = this.currentStory;
-    this.opt.logger.debug(`[cid: ${this.idx}]`, "Start to process to screenshot story:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
+    this.debug("Start to process to screenshot story:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
     this.emitter.emit("screenshotOptions", opt);
   }
 
@@ -219,7 +223,7 @@ $doc.body.appendChild($style);
       nextViewport = opt.viewport;
     }
     if (!this.viewport || JSON.stringify(this.viewport) !== JSON.stringify(nextViewport)) {
-      this.opt.logger.debug(`[cid: ${this.idx}]`, "Change viewport", JSON.stringify(nextViewport));
+      this.debug("Change viewport", JSON.stringify(nextViewport));
       await this.page.setViewport(nextViewport);
       this.viewport = nextViewport;
       if (this.opt.reloadAfterChangeViewport) {
@@ -235,13 +239,14 @@ $doc.body.appendChild($style);
   private async waitBrowserMetricsStable() {
     const mw = new MetricsWatcher(this.page, this.opt.metricsWatchRetryCount);
     const count = await mw.waitForStable();
-    this.opt.logger.debug(`Retry to watch metrics ${this.opt.metricsWatchRetryCount - count} times.`);
+    this.debug(`Retry to watch metrics ${this.opt.metricsWatchRetryCount - count} times.`);
     if (count <= 0) {
       this.opt.logger.warn(`Metrics is not stable while ${this.opt.metricsWatchRetryCount} times. ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))}`);
     }
   }
 
   async screenshot() {
+    this.processStartTime = Date.now();
     let opt: ScreenShotOptions | undefined = {
       viewport: { width: 800, height: 600 },
       delay: 0,
@@ -256,15 +261,17 @@ $doc.body.appendChild($style);
         throw new InvalidCurrentStoryStateError();
       }
       if (!opt || opt.skip) {
-        return { ...this.currentStory, buffer: null };
+        const elapsedTime = Date.now() - this.processStartTime;
+        return { ...this.currentStory, buffer: null, elapsedTime };
       }
     }
     const succeeded = await this.setViewport(opt);
-    if (!succeeded) return { ...this.currentStory, buffer: null };
+    if (!succeeded) return { ...this.currentStory, buffer: null, elapsedTime: 0 };
     await this.waitBrowserMetricsStable();
-    await this.page.evaluate(() => new Promise(res => (window as ExposedWindow).requestIdleCallback(() => res(), { timeout: 3000 })));
+    await this.page.evaluate(() => new Promise(res => (window as ExposedWindow).requestIdleCallback(() => res(), { timeout: 300 })));
     const buffer = await this.page.screenshot({ fullPage: opt ? opt.fullPage : true });
-    return { ...this.currentStory, buffer };
+    const elapsedTime = Date.now() - this.processStartTime;
+    return { ...this.currentStory, buffer, elapsedTime };
   }
 
   async setCurrentStory(kind: string, story: string, count: number ) {
@@ -282,7 +289,7 @@ $doc.body.appendChild($style);
         from: "zisui",
       }
     };
-    this.opt.logger.debug(`[cid: ${this.idx}]`, "Set story", kind, story);
+    this.debug("Set story", kind, story);
     await this.page.evaluate((d: typeof data) => window.postMessage(JSON.stringify(d), "*"), data);
   }
 
