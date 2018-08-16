@@ -1,7 +1,7 @@
 export type ScreenShotOptions = {
   delay: number,
   waitImages: boolean,
-  waitFor: string,
+  waitFor: string | (() => Promise<any>),
   viewport: {
     width: number,
     height: number,
@@ -11,6 +11,7 @@ export type ScreenShotOptions = {
     isLandscape?: boolean,
   } | string,
   fullPage: boolean,
+  skip: boolean,
 };
 
 export type ScreenShotOptionsForApp = ScreenShotOptions & {

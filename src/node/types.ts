@@ -5,7 +5,6 @@ import { Story } from "../util";
 
 export type ExposedWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
-  zisuiManaged?: boolean;
   stories?: StoryKind[],
   emitCatpture(opt: ScreenShotOptions): void,
   waitFor?: () => Promise<any>,
@@ -14,6 +13,8 @@ export type ExposedWindow = typeof window & {
   optionStore?: { [kind: string]: { [story: string]: (Partial<ScreenShotOptions>)[] } },
 };
 
+export type ZisuiRunMode = "simple" | "managed";
+
 export interface MainOptions {
   showBrowser: boolean;
   storybookUrl: string;
@@ -21,9 +22,13 @@ export interface MainOptions {
   serverTimeout: number;
   captureTimeout: number;
   captureMaxRetryCount: number;
+  defaultViewport: string;
   viewportDelay: number;
   reloadAfterChangeViewport: boolean;
   outDir: string;
+  flat: boolean;
+  include: string[];
+  exclude: string[];
   disableCssAnimation: boolean;
   parallel: number;
   metricsWatchRetryCount: number;

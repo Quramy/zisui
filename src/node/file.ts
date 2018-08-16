@@ -9,13 +9,13 @@ export class FileSystem {
   }
 
   save(kind: string, story: string, buffer: Buffer) {
-    const filePath = path.join(this.opt.outDir, kind, story + ".png");
-    return new Promise((resolve, reject) => {
+    const name = this.opt.flat ? (kind + "_" + story).replace(/\//g, "_") : kind + "/" + story;
+    const filePath = path.join(this.opt.outDir, name + ".png");
+    return new Promise<string>((resolve, reject) => {
       mkdirp.sync(path.dirname(filePath));
       fs.writeFile(filePath, buffer, (err) => {
         if (err) reject(err);
-        this.opt.logger.log("Screenshot stored:", this.opt.logger.color.magenta(filePath));
-        resolve();
+        resolve(filePath);
       });
     });
   }

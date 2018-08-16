@@ -11,10 +11,11 @@ import {
   Metrics,
 } from "puppeteer";
 
-import { ExposedWindow, MainOptions } from "./types";
+import { ExposedWindow, MainOptions, ZisuiRunMode } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "../client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
 import { flattenStories, sleep, Story } from "../util";
+import { defaultScreenshotOptions } from "../client/default-screenshot-options";
 const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
 
 function url2story(url: string) {
@@ -108,25 +109,28 @@ export class StorybookBrowser extends Browser {
     }
     this.opt.logger.debug(stories);
     this.opt.logger.log(`Found ${this.opt.logger.color.green(flattenStories(stories).length + "")} stories.`);
-    return stories;
+    return { stories, managed: registered };
   }
 }
 
 export class PreviewBrowser extends Browser {
   failedStories: (Story & { count: number })[] = [];
-  private mode!: "managed" | "simple";
   private viewport?: Viewport;
   private emitter: EventEmitter;
   private currentStory?: { kind: string, story: string, count: number };
+  private processStartTime = 0;
   private processedStories: { [key: string]: Story} = { };
-  private tempBuffer?: Buffer;
 
-  constructor(mainOptions: MainOptions, private idx: number) {
+  constructor(mainOptions: MainOptions, private mode: ZisuiRunMode, private idx: number) {
     super(mainOptions);
     this.emitter = new EventEmitter();
     this.emitter.on("error", e => {
       throw e;
     });
+  }
+
+  private debug(...args: any[]) {
+    this.opt.logger.debug.apply(this.opt.logger, [`[cid: ${this.idx}]`, ...args]);
   }
 
   async boot() {
@@ -135,8 +139,6 @@ export class PreviewBrowser extends Browser {
     await this.addStyles();
     await this.openPage(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
     await this.addStyles();
-    const managed = await this.page.evaluate(() => (window as ExposedWindow).zisuiManaged);
-    this.mode = managed ? "managed" : "simple";
     return this;
   }
 
@@ -162,23 +164,22 @@ $doc.body.appendChild($style);
   }
 
   private async expose() {
-    this.page.exposeFunction("emitCatpture", (opt: any) => this.screenshotCallback(opt));
+    this.page.exposeFunction("emitCatpture", (opt: any) => this.handleOnCapture(opt));
     this.page.exposeFunction("getCurrentStory", (url: string) => url2story(url));
   }
 
-  async screenshotCallback(opt: ScreenShotOptionsForApp) {
+  private async handleOnCapture(opt: ScreenShotOptionsForApp) {
     if (!this.currentStory) {
       this.emitter.emit("error", new InvalidCurrentStoryStateError());
       return;
     }
     if (this.processedStories[this.currentStory.kind + this.currentStory.story]) {
-      this.opt.logger.debug(`[cid: ${this.idx}]`, "This story was already processed:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
+      this.debug("This story was already processed:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
       return;
     }
     this.processedStories[this.currentStory.kind + this.currentStory.story] = this.currentStory;
-    this.opt.logger.debug(`[cid: ${this.idx}]`, "Start to process to screenshot story:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
-    this.emitter.emit("screenshot", opt);
-    const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
+    this.debug("Start to process to screenshot story:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
+    this.emitter.emit("screenshotOptions", opt);
   }
 
   private waitScreenShotOption() {
@@ -203,8 +204,7 @@ $doc.body.appendChild($style);
         }
         reject(new ScreenshotTimeoutError(this.opt.captureTimeout, this.currentStory));
       }, this.opt.captureTimeout);
-      this.emitter.once("screenshot", cb);
-      this.emitter.once("skip", cb);
+      this.emitter.once("screenshotOptions", cb);
     });
   }
 
@@ -214,17 +214,24 @@ $doc.body.appendChild($style);
     }
     let nextViewport: Viewport;
     if (typeof opt.viewport === "string") {
-      const hit = dd.find(d => d.name === opt.viewport);
-      if (!hit) {
-        this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewport)} is not registered in 'puppeteer/DeviceDescriptor'.`);
-        return false;
+      if (opt.viewport.match(/^\d+$/)) {
+        nextViewport = { width: +opt.viewport, height: 600 };
+      } else if (opt.viewport.match(/^\d+x\d+$/)) {
+        const [w, h] = opt.viewport.split("x");
+        nextViewport = { width: +w, height: +h };
+      } else {
+        const hit = dd.find(d => d.name === opt.viewport);
+        if (!hit) {
+          this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewport)} is not registered in 'puppeteer/DeviceDescriptor'.`);
+          return false;
+        }
+        nextViewport = hit.viewport;
       }
-      nextViewport = hit.viewport;
     } else {
       nextViewport = opt.viewport;
     }
     if (!this.viewport || JSON.stringify(this.viewport) !== JSON.stringify(nextViewport)) {
-      this.opt.logger.debug(`[cid: ${this.idx}]`, "Change viewport", JSON.stringify(nextViewport));
+      this.debug("Change viewport", JSON.stringify(nextViewport));
       await this.page.setViewport(nextViewport);
       this.viewport = nextViewport;
       if (this.opt.reloadAfterChangeViewport) {
@@ -240,35 +247,32 @@ $doc.body.appendChild($style);
   private async waitBrowserMetricsStable() {
     const mw = new MetricsWatcher(this.page, this.opt.metricsWatchRetryCount);
     const count = await mw.waitForStable();
-    this.opt.logger.debug(`Retry to watch metrics ${this.opt.metricsWatchRetryCount - count} times.`);
+    this.debug(`Retry to watch metrics ${this.opt.metricsWatchRetryCount - count} times.`);
     if (count <= 0) {
       this.opt.logger.warn(`Metrics is not stable while ${this.opt.metricsWatchRetryCount} times. ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))}`);
     }
   }
 
   async screenshot() {
-    let opt: ScreenShotOptions | undefined = {
-      viewport: { width: 800, height: 600 },
-      delay: 0,
-      waitFor: "",
-      waitImages: false,
-      fullPage: true,
-    };
+    this.processStartTime = Date.now();
+    let opt: ScreenShotOptions | undefined = { ...defaultScreenshotOptions, viewport: this.opt.defaultViewport };
     if (this.mode === "managed") {
       opt = await this.waitScreenShotOption();
       if (!this.currentStory) {
         throw new InvalidCurrentStoryStateError();
       }
-      if (!opt) {
-        return { ...this.currentStory, buffer: null };
+      if (!opt || opt.skip) {
+        const elapsedTime = Date.now() - this.processStartTime;
+        return { ...this.currentStory, buffer: null, elapsedTime };
       }
     }
     const succeeded = await this.setViewport(opt);
-    if (!succeeded) return { ...this.currentStory, buffer: null };
+    if (!succeeded) return { ...this.currentStory, buffer: null, elapsedTime: 0 };
     await this.waitBrowserMetricsStable();
-    await this.page.evaluate(() => new Promise(res => (window as ExposedWindow).requestIdleCallback(() => res(), { timeout: 3000 })));
+    await this.page.evaluate(() => new Promise(res => (window as ExposedWindow).requestIdleCallback(() => res(), { timeout: 300 })));
     const buffer = await this.page.screenshot({ fullPage: opt ? opt.fullPage : true });
-    return { ...this.currentStory, buffer };
+    const elapsedTime = Date.now() - this.processStartTime;
+    return { ...this.currentStory, buffer, elapsedTime };
   }
 
   async setCurrentStory(kind: string, story: string, count: number ) {
@@ -286,7 +290,7 @@ $doc.body.appendChild($style);
         from: "zisui",
       }
     };
-    this.opt.logger.debug(`[cid: ${this.idx}]`, "Set story", kind, story);
+    this.debug("Set story", kind, story);
     await this.page.evaluate((d: typeof data) => window.postMessage(JSON.stringify(d), "*"), data);
   }
 

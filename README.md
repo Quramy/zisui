@@ -80,6 +80,9 @@ Options:
   --version                    Show version number                                                             [boolean]
   --outDir, -o                 Output directory.                                   [string] [default: "__screenshots__"]
   --parallel, -p               Number of browsers to screenshot.                                   [number] [default: 4]
+  --flat, -f                   Flatten output filename.                                       [boolean] [default: false]
+  --include, -i                Including stories name rule.                                        [array] [default: []]
+  --exclude, -e                Excluding stories name rule.                                        [array] [default: []]
   --disableCssAnimation        Disable CSS animation and transition.                           [boolean] [default: true]
   --silent                                                                                    [boolean] [default: false]
   --verbose                                                                                   [boolean] [default: false]
@@ -92,8 +95,10 @@ Options:
   --reloadAfterChangeViewport  Whether to reload after viewport changed.                      [boolean] [default: false]
 
 Examples:
-  zisui http://localhost:9009
-  zisui --serverCmd "start-storybook -p 3000" http://localhost:3000
+  zisui http://localshot:9009
+  zisui http://localshot:9009 -i "some-kind/a-story"
+  zisui http://localshot:9009 -e "**/default"
+  zisui --serverCmd "start-storybook -p 3000" http://localshot:3000
 
 ```
 <!-- endinject -->
@@ -112,19 +117,20 @@ A Storybook decorator to notify *zisui* to screenshot stories.
 
 ```
 type ScreenShotOptions = {
-  waitImages?: boolean,   // default true
-  delay?: number,         // default 0 msec
-  waitFor?: string,       // default ""
+  waitImages?: boolean,         // default true
+  delay?: number,               // default 0 msec
+  waitFor?: string | Function,  // default ""
   viewport?: string | {
-    width: number,        // default 800
-    height: number,       // default 600
+    width: number,              // default 800
+    height: number,             // default 600
   },
-  fullPage?: boolean,     // default true
+  fullPage?: boolean,           // default true
+  skip?: boolean,               // default false
 }
 ```
 
 - `viewport`: If you set a string parameter, it must be included Puppeteer's device descriptors.
-- `waitFor` : Sometimes you want control the timing to screenshot. If you set a name of a function to return `Promise`, *zisui* waits the promise is resolved. 
+- `waitFor` : Sometimes you want control the timing to screenshot. If you set a function to return `Promise`, *zisui* waits the promise is resolved. Also you can set global function name to this.
 
 ```html
 <!-- .storybook/preview-head.html -->
