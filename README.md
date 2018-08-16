@@ -117,20 +117,20 @@ A Storybook decorator to notify *zisui* to screenshot stories.
 
 ```
 type ScreenShotOptions = {
-  waitImages?: boolean,   // default true
-  delay?: number,         // default 0 msec
-  waitFor?: string,       // default ""
+  waitImages?: boolean,         // default true
+  delay?: number,               // default 0 msec
+  waitFor?: string | Function,  // default ""
   viewport?: string | {
-    width: number,        // default 800
-    height: number,       // default 600
+    width: number,              // default 800
+    height: number,             // default 600
   },
-  fullPage?: boolean,     // default true
-  skip?: boolean,         // default false
+  fullPage?: boolean,           // default true
+  skip?: boolean,               // default false
 }
 ```
 
 - `viewport`: If you set a string parameter, it must be included Puppeteer's device descriptors.
-- `waitFor` : Sometimes you want control the timing to screenshot. If you set a name of a function to return `Promise`, *zisui* waits the promise is resolved. 
+- `waitFor` : Sometimes you want control the timing to screenshot. If you set a function to return `Promise`, *zisui* waits the promise is resolved. Also you can set global function name to this.
 
 ```html
 <!-- .storybook/preview-head.html -->

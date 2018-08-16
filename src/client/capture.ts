@@ -2,18 +2,7 @@ import { ExposedWindow } from "../node/types";
 import { ScreenShotOptions } from "./types";
 import imagesloaded from "imagesloaded";
 import { Story, sleep } from "../util";
-
-const defaultScreenshotOptions = {
-  delay: 0,
-  waitImages: true,
-  waitFor: "",
-  viewport: {
-    width: 800,
-    height: 600,
-  },
-  fullPage: true,
-  skip: false,
-} as ScreenShotOptions;
+import { defaultScreenshotOptions } from "./default-screenshot-options";
 
 function waitImages(enabled: boolean, selector = "body") {
   if (!enabled) return Promise.resolve();
@@ -22,10 +11,14 @@ function waitImages(enabled: boolean, selector = "body") {
   return new Promise<void>(res => imagesloaded(elm, () => res()));
 }
 
-function waitUserFunction(waitFor: string, win: ExposedWindow) {
+function waitUserFunction(waitFor: string | (() => Promise<any>), win: ExposedWindow) {
   if (!waitFor) return Promise.resolve();
-  if (!win.waitFor || typeof win.waitFor !== "function") return Promise.resolve();
-  return win.waitFor();
+  if (typeof waitFor === "string") {
+    if (!win.waitFor || typeof win.waitFor !== "function") return Promise.resolve();
+    return win.waitFor();
+  } else if (typeof waitFor === "function") {
+    return waitFor();
+  }
 }
 
 function waitNextIdle(win: ExposedWindow) {

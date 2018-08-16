@@ -1,7 +1,7 @@
 export type ScreenShotOptions = {
   delay: number,
   waitImages: boolean,
-  waitFor: string,
+  waitFor: string | (() => Promise<any>),
   viewport: {
     width: number,
     height: number,

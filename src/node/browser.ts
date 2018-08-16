@@ -15,6 +15,7 @@ import { ExposedWindow, MainOptions, ZisuiRunMode } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "../client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
 import { flattenStories, sleep, Story } from "../util";
+import { defaultScreenshotOptions } from "../client/default-screenshot-options";
 const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
 
 function url2story(url: string) {
@@ -247,14 +248,7 @@ $doc.body.appendChild($style);
 
   async screenshot() {
     this.processStartTime = Date.now();
-    let opt: ScreenShotOptions | undefined = {
-      viewport: { width: 800, height: 600 },
-      delay: 0,
-      waitFor: "",
-      waitImages: false,
-      fullPage: true,
-      skip: false,
-    };
+    let opt: ScreenShotOptions | undefined = defaultScreenshotOptions;
     if (this.mode === "managed") {
       opt = await this.waitScreenShotOption();
       if (!this.currentStory) {
