@@ -146,5 +146,8 @@ type ScreenShotOptions = {
   withScreenshot({ waitFor: 'myWait' }) // wait for 5 seconds.
 ```
 
+## How it works?
+*zisui* is a crawler using Puppeteer.
+
 ## License
 MIT
