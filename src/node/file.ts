@@ -9,7 +9,8 @@ export class FileSystem {
   }
 
   save(kind: string, story: string, buffer: Buffer) {
-    const filePath = path.join(this.opt.outDir, kind, story + ".png");
+    const name = this.opt.flat ? (kind + "_" + story).replace(/\//g, "_") : kind + "/" + story;
+    const filePath = path.join(this.opt.outDir, name + ".png");
     return new Promise((resolve, reject) => {
       mkdirp.sync(path.dirname(filePath));
       fs.writeFile(filePath, buffer, (err) => {

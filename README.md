@@ -80,6 +80,9 @@ Options:
   --version                    Show version number                                                             [boolean]
   --outDir, -o                 Output directory.                                   [string] [default: "__screenshots__"]
   --parallel, -p               Number of browsers to screenshot.                                   [number] [default: 4]
+  --flat, -f                   Flatten output filename.                                       [boolean] [default: false]
+  --include, -i                Including stories name rule.                                        [array] [default: []]
+  --exclude, -e                Excluding stories name rule.                                        [array] [default: []]
   --disableCssAnimation        Disable CSS animation and transition.                           [boolean] [default: true]
   --silent                                                                                    [boolean] [default: false]
   --verbose                                                                                   [boolean] [default: false]
@@ -92,8 +95,10 @@ Options:
   --reloadAfterChangeViewport  Whether to reload after viewport changed.                      [boolean] [default: false]
 
 Examples:
-  zisui http://localhost:9009
-  zisui --serverCmd "start-storybook -p 3000" http://localhost:3000
+  zisui http://localshot:9009
+  zisui http://localshot:9009 -i "some-kind/a-story"
+  zisui http://localshot:9009 -e "**/default"
+  zisui --serverCmd "start-storybook -p 3000" http://localshot:3000
 
 ```
 <!-- endinject -->

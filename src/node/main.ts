@@ -1,6 +1,6 @@
 import { StoryKind } from "@storybook/addons";
 import { StorybookBrowser, PreviewBrowser } from "./browser";
-import { execParalell, flattenStories, Story } from "../util";
+import { execParalell, flattenStories, Story, filterStories } from "../util";
 import { MainOptions } from "./types";
 import { StorybookServer } from "./server";
 import { FileSystem } from "./file";
@@ -22,8 +22,12 @@ export async function main(opt: MainOptions) {
   await storybookServer.launchIfNeeded();
   await storybookBrowser.boot();
 
-  let stories = flattenStories(await storybookBrowser.getStories()).map(s => ({ ...s, count: 0 }));
+  let stories = filterStories(flattenStories(await storybookBrowser.getStories()), opt.include, opt.exclude).map(s => ({ ...s, count: 0 }));
   storybookBrowser.close();
+
+  if (stories.length === 0) {
+    opt.logger.warn("There is no matched story. Check your include/exclude options.");
+  }
 
   while(stories.length > 0) {
     const browsers = await bootPreviewBrowsers(opt, stories);

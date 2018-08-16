@@ -13,6 +13,9 @@ function createOptions(): MainOptions {
     .usage("usage: zisui [options] storybook_url")
     .option("outDir", { string: true, alias: "o", default: "__screenshots__", description: "Output directory." })
     .option("parallel", { number: true, alias: "p", default: 4, description: "Number of browsers to screenshot." })
+    .option("flat", { boolean: true, alias: "f", default: false, description: "Flatten output filename." })
+    .option("include", { array: true, alias: "i", default: [], description: "Including stories name rule." })
+    .option("exclude", { array: true, alias: "e", default: [], description: "Excluding stories name rule." })
     .option("disableCssAnimation", { boolean: true, default: true, description: "Disable CSS animation and transition." })
     .option("silent", { boolean: true, default: false })
     .option("verbose", { boolean: true, default: false })
@@ -24,6 +27,8 @@ function createOptions(): MainOptions {
     .option("viewportDelay", { number: true, default: 300, description: "Delay time [msec] between changing viewport and capturing." })
     .option("reloadAfterChangeViewport", { boolean: true, default: false, description: "Whether to reload after viewport changed." })
     .example("zisui http://localshot:9009", "")
+    .example("zisui http://localshot:9009 -i \"some-kind/a-story\"", "")
+    .example("zisui http://localshot:9009 -e \"**/default\"", "")
     .example("zisui --serverCmd \"start-storybook -p 3000\" http://localshot:3000", "")
   ;
   let storybookUrl;
@@ -36,6 +41,9 @@ function createOptions(): MainOptions {
 
   const {
     outDir,
+    flat,
+    include,
+    exclude,
     parallel,
     silent,
     verbose,
@@ -52,6 +60,9 @@ function createOptions(): MainOptions {
   const opt = {
     storybookUrl,
     outDir,
+    flat,
+    include,
+    exclude,
     parallel,
     serverCmd,
     serverTimeout,
@@ -69,17 +80,19 @@ function createOptions(): MainOptions {
 
 const start = Date.now();
 const opt = createOptions();
+const { logger, ...rest } = opt;
+logger.debug("Option:", rest);
 main(opt)
 .then(() => {
   const duration = Date.now() - start;
-  opt.logger.log(`Screenshot was ended successfully in ${opt.logger.color.green(duration + " msec")}.`);
+  logger.log(`Screenshot was ended successfully in ${opt.logger.color.green(duration + " msec")}.`);
 })
 .catch(err => {
   if (err instanceof Error) {
-    opt.logger.error(err.message);
-    opt.logger.errorStack(err.stack);
+    logger.error(err.message);
+    logger.errorStack(err.stack);
   } else {
-    opt.logger.error(err);
+    logger.error(err);
   }
   process.exit(1);
 });

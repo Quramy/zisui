@@ -24,6 +24,9 @@ export interface MainOptions {
   viewportDelay: number;
   reloadAfterChangeViewport: boolean;
   outDir: string;
+  flat: boolean;
+  include: string[];
+  exclude: string[];
   disableCssAnimation: boolean;
   parallel: number;
   metricsWatchRetryCount: number;

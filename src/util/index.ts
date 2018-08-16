@@ -1,4 +1,5 @@
 import { StoryKind } from "@storybook/addons";
+import minimatch = require("minimatch");
 
 export type Story = {
   kind: string,
@@ -17,6 +18,13 @@ export function flattenStories(stories: StoryKind[]) {
   return stories.reduce(
     (acc, storyKind) => [...acc, ...storyKind.stories.map(story => ({ kind: storyKind.kind, story }))], [] as Story[]
   );
+}
+
+export function filterStories(flatStories: Story[], include: string[], exclude: string[]) {
+  const conbined = flatStories.map(s => ({ ...s, name: s.kind + "/" + s.story }));
+  const included = include.length ? conbined.filter(s => include.some(rule => minimatch(s.name, rule))) : conbined;
+  const excluded = exclude.length ? included.filter(s => !exclude.every(rule => minimatch(s.name, rule))) : included;
+  return excluded.map(({ kind, story }) => ({ kind, story }));
 }
 
 export const execParalell = <T, S>(tasks: Task<T, S>[], runners: S[]) => {
