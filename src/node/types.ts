@@ -22,6 +22,7 @@ export interface MainOptions {
   serverTimeout: number;
   captureTimeout: number;
   captureMaxRetryCount: number;
+  defaultViewport: string;
   viewportDelay: number;
   reloadAfterChangeViewport: boolean;
   outDir: string;

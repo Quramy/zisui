@@ -16,6 +16,7 @@ function createOptions(): MainOptions {
     .option("flat", { boolean: true, alias: "f", default: false, description: "Flatten output filename." })
     .option("include", { array: true, alias: "i", default: [], description: "Including stories name rule." })
     .option("exclude", { array: true, alias: "e", default: [], description: "Excluding stories name rule." })
+    .option("viewport", { string: true, alias: "V", default: "800x600", description: "Default viewport." })
     .option("disableCssAnimation", { boolean: true, default: true, description: "Disable CSS animation and transition." })
     .option("silent", { boolean: true, default: false })
     .option("verbose", { boolean: true, default: false })
@@ -28,7 +29,7 @@ function createOptions(): MainOptions {
     .option("reloadAfterChangeViewport", { boolean: true, default: false, description: "Whether to reload after viewport changed." })
     .example("zisui http://localshot:9009", "")
     .example("zisui http://localshot:9009 -i \"some-kind/a-story\"", "")
-    .example("zisui http://localshot:9009 -e \"**/default\"", "")
+    .example("zisui http://example.com/your-storybook -e \"**/default\" -V iPad", "")
     .example("zisui --serverCmd \"start-storybook -p 3000\" http://localshot:3000", "")
   ;
   let storybookUrl;
@@ -44,6 +45,7 @@ function createOptions(): MainOptions {
     flat,
     include,
     exclude,
+    viewport,
     parallel,
     silent,
     verbose,
@@ -63,6 +65,7 @@ function createOptions(): MainOptions {
     flat,
     include,
     exclude,
+    defaultViewport: viewport,
     parallel,
     serverCmd,
     serverTimeout,

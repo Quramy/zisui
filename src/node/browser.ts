@@ -214,12 +214,19 @@ $doc.body.appendChild($style);
     }
     let nextViewport: Viewport;
     if (typeof opt.viewport === "string") {
-      const hit = dd.find(d => d.name === opt.viewport);
-      if (!hit) {
-        this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewport)} is not registered in 'puppeteer/DeviceDescriptor'.`);
-        return false;
+      if (opt.viewport.match(/^\d+$/)) {
+        nextViewport = { width: +opt.viewport, height: 600 };
+      } else if (opt.viewport.match(/^\d+x\d+$/)) {
+        const [w, h] = opt.viewport.split("x");
+        nextViewport = { width: +w, height: +h };
+      } else {
+        const hit = dd.find(d => d.name === opt.viewport);
+        if (!hit) {
+          this.opt.logger.warn(`Skip screenshot for ${this.opt.logger.color.yellow(JSON.stringify(this.currentStory))} because the viewport ${this.opt.logger.color.magenta(opt.viewport)} is not registered in 'puppeteer/DeviceDescriptor'.`);
+          return false;
+        }
+        nextViewport = hit.viewport;
       }
-      nextViewport = hit.viewport;
     } else {
       nextViewport = opt.viewport;
     }
@@ -248,7 +255,7 @@ $doc.body.appendChild($style);
 
   async screenshot() {
     this.processStartTime = Date.now();
-    let opt: ScreenShotOptions | undefined = defaultScreenshotOptions;
+    let opt: ScreenShotOptions | undefined = { ...defaultScreenshotOptions, viewport: this.opt.defaultViewport };
     if (this.mode === "managed") {
       opt = await this.waitScreenShotOption();
       if (!this.currentStory) {
