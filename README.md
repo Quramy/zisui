@@ -83,6 +83,7 @@ Options:
   --flat, -f                   Flatten output filename.                                       [boolean] [default: false]
   --include, -i                Including stories name rule.                                        [array] [default: []]
   --exclude, -e                Excluding stories name rule.                                        [array] [default: []]
+  --viewport, -V               Default viewport.                                           [string] [default: "800x600"]
   --disableCssAnimation        Disable CSS animation and transition.                           [boolean] [default: true]
   --silent                                                                                    [boolean] [default: false]
   --verbose                                                                                   [boolean] [default: false]
@@ -97,7 +98,7 @@ Options:
 Examples:
   zisui http://localshot:9009
   zisui http://localshot:9009 -i "some-kind/a-story"
-  zisui http://localshot:9009 -e "**/default"
+  zisui http://example.com/your-storybook -e "**/default" -V iPad
   zisui --serverCmd "start-storybook -p 3000" http://localshot:3000
 
 ```
