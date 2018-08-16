@@ -3,10 +3,8 @@ import { ScreenShotOptions } from "../client/types";
 import { Logger } from "./logger";
 import { Story } from "../util";
 
-// TODO move
 export type ExposedWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
-  zisuiManaged?: boolean;
   stories?: StoryKind[],
   emitCatpture(opt: ScreenShotOptions): void,
   waitFor?: () => Promise<any>,
