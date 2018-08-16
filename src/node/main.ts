@@ -1,12 +1,12 @@
 import { StoryKind } from "@storybook/addons";
 import { StorybookBrowser, PreviewBrowser } from "./browser";
 import { execParalell, flattenStories, Story, filterStories } from "../util";
-import { MainOptions } from "./types";
+import { MainOptions, ZisuiRunMode } from "./types";
 import { StorybookServer } from "./server";
 import { FileSystem } from "./file";
 
-async function bootPreviewBrowsers(opt: MainOptions, stories: Story[]) {
-  const browsers = new Array(Math.min(opt.parallel, stories.length)).fill("").map((_, i) => new PreviewBrowser(opt, i));
+async function bootPreviewBrowsers(opt: MainOptions, stories: Story[], mode: ZisuiRunMode) {
+  const browsers = new Array(Math.min(opt.parallel, stories.length)).fill("").map((_, i) => new PreviewBrowser(opt, mode, i));
   await browsers[0].boot();
   await Promise.all(browsers.slice(1, browsers.length).map(b => b.boot()));
   opt.logger.debug(`Started ${browsers.length} preview browsers`);
@@ -22,7 +22,10 @@ export async function main(opt: MainOptions) {
   await storybookServer.launchIfNeeded();
   await storybookBrowser.boot();
 
-  let stories = filterStories(flattenStories(await storybookBrowser.getStories()), opt.include, opt.exclude).map(s => ({ ...s, count: 0 }));
+  const result = await storybookBrowser.getStories();
+  const mode: ZisuiRunMode = result.managed ? "managed" : "simple";
+  let stories = filterStories(flattenStories(result.stories), opt.include, opt.exclude).map(s => ({ ...s, count: 0 }));
+  opt.logger.debug(`zisui runs with ${mode} mode`);
   storybookBrowser.close();
 
   if (stories.length === 0) {
@@ -30,7 +33,7 @@ export async function main(opt: MainOptions) {
   }
 
   while(stories.length > 0) {
-    const browsers = await bootPreviewBrowsers(opt, stories);
+    const browsers = await bootPreviewBrowsers(opt, stories, mode);
     const tasks = stories
     .map(({ story, kind, count }) => {
       return async (previewBrowser: PreviewBrowser) => {

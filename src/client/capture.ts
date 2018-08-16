@@ -12,6 +12,7 @@ const defaultScreenshotOptions = {
     height: 600,
   },
   fullPage: true,
+  skip: false,
 } as ScreenShotOptions;
 
 function waitImages(enabled: boolean, selector = "body") {
@@ -71,6 +72,7 @@ export function capture() {
       const options = consumeOptions(win, s);
       if (!options) return;
       const scOpt = options.reduce((acc: ScreenShotOptions, opt: Partial<ScreenShotOptions>) => ({ ...acc, ...opt }), defaultScreenshotOptions);
+      if (scOpt.skip) win.emitCatpture(scOpt);
       Promise.resolve()
         .then(() => waitImages(scOpt.waitImages))
         .then(() => sleep(scOpt.delay))

@@ -125,6 +125,7 @@ type ScreenShotOptions = {
     height: number,       // default 600
   },
   fullPage?: boolean,     // default true
+  skip?: boolean,         // default false
 }
 ```
 

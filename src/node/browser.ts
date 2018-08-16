@@ -11,7 +11,7 @@ import {
   Metrics,
 } from "puppeteer";
 
-import { ExposedWindow, MainOptions } from "./types";
+import { ExposedWindow, MainOptions, ZisuiRunMode } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "../client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
 import { flattenStories, sleep, Story } from "../util";
@@ -108,20 +108,19 @@ export class StorybookBrowser extends Browser {
     }
     this.opt.logger.debug(stories);
     this.opt.logger.log(`Found ${this.opt.logger.color.green(flattenStories(stories).length + "")} stories.`);
-    return stories;
+    return { stories, managed: registered };
   }
 }
 
 export class PreviewBrowser extends Browser {
   failedStories: (Story & { count: number })[] = [];
-  private mode!: "managed" | "simple";
   private viewport?: Viewport;
   private emitter: EventEmitter;
   private currentStory?: { kind: string, story: string, count: number };
   private processedStories: { [key: string]: Story} = { };
   private tempBuffer?: Buffer;
 
-  constructor(mainOptions: MainOptions, private idx: number) {
+  constructor(mainOptions: MainOptions, private mode: ZisuiRunMode, private idx: number) {
     super(mainOptions);
     this.emitter = new EventEmitter();
     this.emitter.on("error", e => {
@@ -135,8 +134,6 @@ export class PreviewBrowser extends Browser {
     await this.addStyles();
     await this.openPage(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
     await this.addStyles();
-    const managed = await this.page.evaluate(() => (window as ExposedWindow).zisuiManaged);
-    this.mode = managed ? "managed" : "simple";
     return this;
   }
 
@@ -162,11 +159,11 @@ $doc.body.appendChild($style);
   }
 
   private async expose() {
-    this.page.exposeFunction("emitCatpture", (opt: any) => this.screenshotCallback(opt));
+    this.page.exposeFunction("emitCatpture", (opt: any) => this.handleOnCapture(opt));
     this.page.exposeFunction("getCurrentStory", (url: string) => url2story(url));
   }
 
-  async screenshotCallback(opt: ScreenShotOptionsForApp) {
+  private async handleOnCapture(opt: ScreenShotOptionsForApp) {
     if (!this.currentStory) {
       this.emitter.emit("error", new InvalidCurrentStoryStateError());
       return;
@@ -177,8 +174,7 @@ $doc.body.appendChild($style);
     }
     this.processedStories[this.currentStory.kind + this.currentStory.story] = this.currentStory;
     this.opt.logger.debug(`[cid: ${this.idx}]`, "Start to process to screenshot story:", this.currentStory.kind, this.currentStory.story, JSON.stringify(opt));
-    this.emitter.emit("screenshot", opt);
-    const buffer = await this.page.screenshot({ fullPage: opt.fullPage });
+    this.emitter.emit("screenshotOptions", opt);
   }
 
   private waitScreenShotOption() {
@@ -203,8 +199,7 @@ $doc.body.appendChild($style);
         }
         reject(new ScreenshotTimeoutError(this.opt.captureTimeout, this.currentStory));
       }, this.opt.captureTimeout);
-      this.emitter.once("screenshot", cb);
-      this.emitter.once("skip", cb);
+      this.emitter.once("screenshotOptions", cb);
     });
   }
 
@@ -253,13 +248,14 @@ $doc.body.appendChild($style);
       waitFor: "",
       waitImages: false,
       fullPage: true,
+      skip: false,
     };
     if (this.mode === "managed") {
       opt = await this.waitScreenShotOption();
       if (!this.currentStory) {
         throw new InvalidCurrentStoryStateError();
       }
-      if (!opt) {
+      if (!opt || opt.skip) {
         return { ...this.currentStory, buffer: null };
       }
     }

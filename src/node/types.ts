@@ -3,6 +3,7 @@ import { ScreenShotOptions } from "../client/types";
 import { Logger } from "./logger";
 import { Story } from "../util";
 
+// TODO move
 export type ExposedWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
   zisuiManaged?: boolean;
@@ -13,6 +14,8 @@ export type ExposedWindow = typeof window & {
   getCurrentStory: (url: string) => Promise<Story | undefined>,
   optionStore?: { [kind: string]: { [story: string]: (Partial<ScreenShotOptions>)[] } },
 };
+
+export type ZisuiRunMode = "simple" | "managed";
 
 export interface MainOptions {
   showBrowser: boolean;

@@ -11,6 +11,7 @@ export type ScreenShotOptions = {
     isLandscape?: boolean,
   } | string,
   fullPage: boolean,
+  skip: boolean,
 };
 
 export type ScreenShotOptionsForApp = ScreenShotOptions & {

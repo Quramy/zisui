@@ -81,7 +81,9 @@ function createOptions(): MainOptions {
 const start = Date.now();
 const opt = createOptions();
 const { logger, ...rest } = opt;
+
 logger.debug("Option:", rest);
+
 main(opt)
 .then(() => {
   const duration = Date.now() - start;

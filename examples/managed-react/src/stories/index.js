@@ -24,6 +24,11 @@ storiesOf('Button', module)
     </Button>
   ));
 
+storiesOf('Button_to_be_skipped', module)
+.addDecorator(withScreenshot({ skip: true }))
+  .add('with text', () => <Button onClick={action('clicked')}>Hello Button</Button>)
+
+
 // storiesOf('ButtonRandom', module)
 //   .add('with text', () => {
 //     if (Math.random() < .4) throw new Error();
