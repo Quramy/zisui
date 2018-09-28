@@ -1,6 +1,6 @@
 {
   "name": "zisui",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Fast and simple storybook screenshooter.",
   "bin": {
     "zisui": "lib/node/cli.js"

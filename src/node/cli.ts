@@ -91,6 +91,7 @@ main(opt)
 .then(() => {
   const duration = Date.now() - start;
   logger.log(`Screenshot was ended successfully in ${opt.logger.color.green(duration + " msec")}.`);
+  process.exit(0);
 })
 .catch(err => {
   if (err instanceof Error) {
