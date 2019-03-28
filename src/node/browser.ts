@@ -14,7 +14,7 @@ import {
 import { ExposedWindow, MainOptions, ZisuiRunMode } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "../client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
-import { flattenStories, sleep, Story } from "../util";
+import { flattenStories, sleep, Story , toId } from "../util";
 import { defaultScreenshotOptions } from "../client/default-screenshot-options";
 const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
 
@@ -277,14 +277,14 @@ $doc.body.appendChild($style);
 
   async setCurrentStory(kind: string, story: string, count: number ) {
     this.currentStory = { kind, story, count };
+    const storyId = toId(kind, story);
     const data = {
       key: "storybook-channel",
       event: {
         type: "setCurrentStory",
         args: [
           {
-            kind,
-            story,
+            storyId
           },
         ],
         from: "zisui",

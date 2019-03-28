@@ -45,3 +45,25 @@ export const execParalell = <T, S>(tasks: Task<T, S>[], runners: S[]) => {
     }))
   ).then(() => results);
 };
+
+// From utils of storybook v5
+// For more details, https://github.com/storybooks/storybook/blob/v5.0.5/lib/router/src/utils.ts
+export const sanitize = (string: string) => {
+  return string
+    .toLowerCase()
+    .replace(/[ ’–—―′¿'`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
+};
+
+const sanitizeSafe = (string: string, part: string) => {
+  const sanitized = sanitize(string);
+  if (sanitized === "") {
+    throw new Error(`Invalid ${part} '${string}', must include alphanumeric characters`);
+  }
+  return sanitized;
+};
+
+export const toId = (kind: string, name: string) =>
+  `${sanitizeSafe(kind, "kind")}--${sanitizeSafe(name, "name")}`;
