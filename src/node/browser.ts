@@ -14,7 +14,7 @@ import {
 import { ExposedWindow, MainOptions, ZisuiRunMode } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "../client/types";
 import { ScreenshotTimeoutError, InvalidCurrentStoryStateError, NoStoriesError } from "./errors";
-import { Story } from "../types";
+import { Story, V5Story } from "../types";
 import { flattenStories, sleep } from "../util";
 import { defaultScreenshotOptions } from "../client/default-screenshot-options";
 const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
@@ -101,7 +101,21 @@ export class StorybookBrowser extends Browser {
     let stories: Story[] | null = null;
     let oldStories: StoryKind[] | null = null;
     if (registered) {
-      oldStories = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as StoryKind[];
+      const storiesObj = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as (StoryKind[] | { [id: string]: V5Story });
+      if (Array.isArray(storiesObj)) {
+        // for managed mode with storybook v4
+        oldStories = storiesObj;
+      } else {
+        // for managed mode with storybook v5
+        stories = Object.keys(storiesObj).map(id => {
+          return {
+            id,
+            kind: storiesObj[id].kind,
+            story: storiesObj[id].story,
+            version: "v5",
+          } as V5Story;
+        });
+      }
     } else {
       await this.page.goto(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
       await this.page.waitFor(() => (window as ExposedWindow).__STORYBOOK_CLIENT_API__);
@@ -109,9 +123,11 @@ export class StorybookBrowser extends Browser {
         () => {
           const win = window as ExposedWindow;
           if (win.__STORYBOOK_CLIENT_API__.raw) {
+            // for simple mode with storybook v5
             // .raw API exsits only if storybook v5
             return [win.__STORYBOOK_CLIENT_API__.raw().map(_ => ({ id: _.id, kind: _.kind, story: _.name, version: "v5"  })), null];
           } else {
+            // for simple mode with storybook v4
             return [null, win.__STORYBOOK_CLIENT_API__.getStorybook().map(({ kind, stories }) => ({ kind, stories: stories.map(s => s.name) }))];
           }
         }
