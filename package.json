@@ -13,7 +13,8 @@
     "lint": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "clihelp": "node scripts/cli-help.js",
     "prepare": "yarn clean && yarn build && yarn clihelp",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "sh e2e.sh",
+    "regression": "reg-suit run"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,10 @@
   "devDependencies": {
     "@types/react": "^16.4.9",
     "react": "^16.4.2",
+    "reg-keygen-git-hash-plugin": "^0.7.16",
+    "reg-notify-github-plugin": "^0.7.21",
+    "reg-publish-s3-plugin": "^0.7.22",
+    "reg-suit": "^0.7.17",
     "tslint": "^5.11.0",
     "tslint-eslint-rules": "^5.3.1",
     "tslint-language-service": "^0.9.9",

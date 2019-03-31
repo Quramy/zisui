@@ -2,3 +2,5 @@
 __screenshots__/
 examples/
 src/
+.reg
+regconfig.json

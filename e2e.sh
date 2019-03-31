@@ -11,10 +11,13 @@ function run() {
     popd > /dev/null
     exit 1
   fi
+  mv __screenshots__ ../../__screenshots__/$1
   popd > /dev/null
   echo "Success $1"
 }
 
+rm -rf __screenshots__
+mkdir -p __screenshots__/examples
 run examples/v4-managed-react \
   && run examples/v4-simple \
   && run examples/v5-managed-react/ \
