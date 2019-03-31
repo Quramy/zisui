@@ -18,13 +18,19 @@ function run() {
 
 rm -rf __screenshots__
 mkdir -p __screenshots__/examples
-run examples/v4-managed-react \
-  && run examples/v4-simple \
-  && run examples/v5-managed-react/ \
-  && run examples/v5-simple
 
-if [ "$?" -gt 0 ]; then
-  exit 1
+if [ -n "$1" ]; then
+  run $1
+  if [ "$?" -gt 0 ]; then
+    exit 1
+  fi
+else
+  for x in $(ls examples); do
+    run examples/${x}
+    if [ "$?" -gt 0 ]; then
+      exit 1
+    fi
+  done
 fi
 
 echo "E2E test was ended successfully 🎉"
