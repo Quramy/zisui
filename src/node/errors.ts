@@ -18,6 +18,10 @@ export class StorybookServerTimeoutError extends Error {
 
 }
 
+export class NoStoriesError extends Error {
+  name = "NoStoriesError";
+}
+
 export class ScreenshotTimeoutError extends Error {
 
   name = "ScreenshotTimeoutError";

@@ -2,6 +2,7 @@ declare module "@storybook/addons" {
   import { EventEmitter } from "events";
 
   export interface API {
+    raw?: () => { id: string, kind: string, name: string }[];
     getStorybook(): { kind: string, stories: { name: string }[] }[];
   }
 

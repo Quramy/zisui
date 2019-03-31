@@ -15,8 +15,10 @@ function run() {
   echo "Success $1"
 }
 
-run examples/simple-example && \
-  run examples/managed-react
+run examples/v4-managed-react \
+  && run examples/v4-simple \
+  && run examples/v5-managed-react/ \
+  && run examples/v5-simple
 
 if [ "$?" -gt 0 ]; then
   exit 1

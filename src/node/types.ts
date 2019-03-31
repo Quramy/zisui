@@ -1,7 +1,7 @@
 import { API, StoryKind } from "@storybook/addons";
 import { ScreenShotOptions } from "../client/types";
 import { Logger } from "./logger";
-import { Story } from "../util";
+import { Story } from "../types";
 
 export type ExposedWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
@@ -9,8 +9,8 @@ export type ExposedWindow = typeof window & {
   emitCatpture(opt: ScreenShotOptions): void,
   waitFor?: () => Promise<any>,
   requestIdleCallback(cb: Function, opt?: { timeout: number }): void,
-  getCurrentStory: (url: string) => Promise<Story | undefined>,
-  optionStore?: { [kind: string]: { [story: string]: (Partial<ScreenShotOptions>)[] } },
+  getCurrentStoryKey: (url: string) => Promise<string | undefined>,
+  optionStore?: { [storyKey: string]:  (Partial<ScreenShotOptions>)[] },
 };
 
 export type ZisuiRunMode = "simple" | "managed";
