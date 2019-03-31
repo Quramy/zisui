@@ -1,4 +1,4 @@
-export type StorybookVersin = "v4" | "v5";
+export type StorybookVersion = "v4" | "v5";
 
 export type V4Story = {
   id: undefined,
