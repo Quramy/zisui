@@ -34,7 +34,7 @@
     "react": "^16.4.2",
     "reg-keygen-git-hash-plugin": "^0.7.16",
     "reg-notify-github-plugin": "^0.7.21",
-    "reg-publish-s3-plugin": "^0.7.18",
+    "reg-publish-s3-plugin": "^0.7.22",
     "reg-suit": "^0.7.17",
     "tslint": "^5.11.0",
     "tslint-eslint-rules": "^5.3.1",
