@@ -13,8 +13,9 @@ import {
 
 import { ExposedWindow, MainOptions, ZisuiRunMode } from "./types";
 import { ScreenShotOptions, ScreenShotOptionsForApp } from "../client/types";
-import { ScreenshotTimeoutError, InvalidCurrentStoryStateError } from "./errors";
-import { flattenStories, sleep, Story } from "../util";
+import { ScreenshotTimeoutError, InvalidCurrentStoryStateError, NoStoriesError } from "./errors";
+import { Story } from "../types";
+import { flattenStories, sleep } from "../util";
 import { defaultScreenshotOptions } from "../client/default-screenshot-options";
 const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
 
@@ -97,18 +98,33 @@ export class StorybookBrowser extends Browser {
     this.opt.logger.debug("Wait for stories definition.");
     await this.openPage(this.opt.storybookUrl);
     const registered: boolean | undefined = await this.page.evaluate(() => (window as any).__ZISUI_REGISTERED__);
-    let stories: StoryKind[];
+    let stories: Story[] | null = null;
+    let oldStories: StoryKind[] | null = null;
     if (registered) {
-      stories = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as StoryKind[];
+      oldStories = await this.page.waitFor(() => (window as ExposedWindow).stories).then(x => x.jsonValue()) as StoryKind[];
     } else {
       await this.page.goto(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
       await this.page.waitFor(() => (window as ExposedWindow).__STORYBOOK_CLIENT_API__);
-      stories = await this.page.evaluate(
-        () => (window as ExposedWindow).__STORYBOOK_CLIENT_API__.getStorybook().map(({ kind, stories }) => ({ kind, stories: stories.map(s => s.name) }))
+      [stories, oldStories] = await this.page.evaluate(
+        () => {
+          const win = window as ExposedWindow;
+          if (win.__STORYBOOK_CLIENT_API__.raw) {
+            // .raw API exsits only if storybook v5
+            return [win.__STORYBOOK_CLIENT_API__.raw().map(_ => ({ id: _.id, kind: _.kind, story: _.name, version: "v5"  })), null];
+          } else {
+            return [null, win.__STORYBOOK_CLIENT_API__.getStorybook().map(({ kind, stories }) => ({ kind, stories: stories.map(s => s.name) }))];
+          }
+        }
       );
     }
+    if (oldStories) {
+      stories = flattenStories(oldStories);
+    }
+    if (!stories) {
+      throw new NoStoriesError();
+    }
     this.opt.logger.debug(stories);
-    this.opt.logger.log(`Found ${this.opt.logger.color.green(flattenStories(stories).length + "")} stories.`);
+    this.opt.logger.log(`Found ${this.opt.logger.color.green(stories.length + "")} stories.`);
     return { stories, managed: registered };
   }
 }
@@ -117,7 +133,7 @@ export class PreviewBrowser extends Browser {
   failedStories: (Story & { count: number })[] = [];
   private viewport?: Viewport;
   private emitter: EventEmitter;
-  private currentStory?: { kind: string, story: string, count: number };
+  private currentStory?: Story & { count: number };
   private processStartTime = 0;
   private processedStories: { [key: string]: Story} = { };
 
@@ -275,23 +291,45 @@ $doc.body.appendChild($style);
     return { ...this.currentStory, buffer, elapsedTime };
   }
 
-  async setCurrentStory(kind: string, story: string, count: number ) {
-    this.currentStory = { kind, story, count };
-    const data = {
-      key: "storybook-channel",
-      event: {
-        type: "setCurrentStory",
-        args: [
-          {
-            kind,
-            story,
-          },
-        ],
-        from: "zisui",
-      }
-    };
-    this.debug("Set story", kind, story);
+  async setCurrentStory(s: Story & { count: number }) {
+    this.currentStory = s;
+    this.debug("Set story", s.kind, s.story);
+    const data = this.createPostmessageData(s);
     await this.page.evaluate((d: typeof data) => window.postMessage(JSON.stringify(d), "*"), data);
+  }
+
+  private createPostmessageData(story: Story) {
+    // REMARKS
+    // zisue uses storybook post message channel, which is Storybook internal API.
+    switch (story.version) {
+      case "v4" :
+        return {
+          key: "storybook-channel",
+          event: {
+            type: "setCurrentStory",
+            args: [
+              {
+                kind: story.kind,
+                story: story.story,
+              },
+            ],
+            from: "zisui",
+          }
+        };
+      case "v5" :
+        return {
+          key: "storybook-channel",
+          event: {
+            type: "setCurrentStory",
+            args: [
+              {
+                storyId: story.id,
+              },
+            ],
+            from: "zisui",
+          }
+        };
+    }
   }
 
 }

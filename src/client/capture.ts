@@ -1,7 +1,8 @@
 import { ExposedWindow } from "../node/types";
 import { ScreenShotOptions } from "./types";
 import imagesloaded from "imagesloaded";
-import { Story, sleep } from "../util";
+import { Story } from "../types";
+import { sleep } from "../util";
 import { defaultScreenshotOptions } from "./default-screenshot-options";
 
 function waitImages(enabled: boolean, selector = "body") {

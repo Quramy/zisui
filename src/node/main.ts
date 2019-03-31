@@ -1,6 +1,7 @@
 import { StoryKind } from "@storybook/addons";
 import { StorybookBrowser, PreviewBrowser } from "./browser";
-import { execParalell, flattenStories, Story, filterStories } from "../util";
+import { execParalell, flattenStories, filterStories } from "../util";
+import { Story } from "../types";
 import { MainOptions, ZisuiRunMode } from "./types";
 import { StorybookServer } from "./server";
 import { FileSystem } from "./file";
@@ -24,7 +25,7 @@ export async function main(opt: MainOptions) {
 
   const result = await storybookBrowser.getStories();
   const mode: ZisuiRunMode = result.managed ? "managed" : "simple";
-  let stories = filterStories(flattenStories(result.stories), opt.include, opt.exclude).map(s => ({ ...s, count: 0 }));
+  let stories = filterStories(result.stories, opt.include, opt.exclude).map(s => ({ ...s, count: 0 }));
   opt.logger.debug(`zisui runs with ${mode} mode`);
   storybookBrowser.close();
 
@@ -35,12 +36,12 @@ export async function main(opt: MainOptions) {
   while(stories.length > 0) {
     const browsers = await bootPreviewBrowsers(opt, stories, mode);
     const tasks = stories
-    .map(({ story, kind, count }) => {
+    .map(s => {
       return async (previewBrowser: PreviewBrowser) => {
-        await previewBrowser.setCurrentStory(kind, story, count );
+        await previewBrowser.setCurrentStory(s);
         const { buffer, elapsedTime } = await previewBrowser.screenshot();
         if (buffer) {
-          const path = await fileSystem.save(kind, story, buffer);
+          const path = await fileSystem.save(s.kind, s.story, buffer);
           opt.logger.log(`Screenshot stored: ${opt.logger.color.magenta(path)} in ${elapsedTime + "" || "--"} msec.`);
         }
       };
