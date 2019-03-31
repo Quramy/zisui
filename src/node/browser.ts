@@ -19,11 +19,16 @@ import { flattenStories, sleep } from "../util";
 import { defaultScreenshotOptions } from "../client/default-screenshot-options";
 const dd = require("puppeteer/DeviceDescriptors") as { name: string, viewport: Viewport }[];
 
-function url2story(url: string) {
+function url2StoryKey(url: string) {
   const q = parse(url).query || "";
-  const { selectedKind: kind, selectedStory: story } = querystring.parse(q);
-  if (!kind || Array.isArray(kind) || !story || Array.isArray(story)) return;
-  return { kind, story };
+  const { id, selectedKind: kind, selectedStory: story } = querystring.parse(q);
+  if (!id) {
+    if (!kind || Array.isArray(kind) || !story || Array.isArray(story)) return;
+    return `${kind}/${story}`;
+  } else {
+    if (Array.isArray(id)) return;
+    return id;
+  }
 }
 
 class MetricsWatcher {
@@ -197,7 +202,7 @@ $doc.body.appendChild($style);
 
   private async expose() {
     this.page.exposeFunction("emitCatpture", (opt: any) => this.handleOnCapture(opt));
-    this.page.exposeFunction("getCurrentStory", (url: string) => url2story(url));
+    this.page.exposeFunction("getCurrentStoryKey", (url: string) => url2StoryKey(url));
   }
 
   private async handleOnCapture(opt: ScreenShotOptionsForApp) {

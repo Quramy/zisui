@@ -9,8 +9,8 @@ export type ExposedWindow = typeof window & {
   emitCatpture(opt: ScreenShotOptions): void,
   waitFor?: () => Promise<any>,
   requestIdleCallback(cb: Function, opt?: { timeout: number }): void,
-  getCurrentStory: (url: string) => Promise<Story | undefined>,
-  optionStore?: { [kind: string]: { [story: string]: (Partial<ScreenShotOptions>)[] } },
+  getCurrentStoryKey: (url: string) => Promise<string | undefined>,
+  optionStore?: { [storyKey: string]:  (Partial<ScreenShotOptions>)[] },
 };
 
 export type ZisuiRunMode = "simple" | "managed";
