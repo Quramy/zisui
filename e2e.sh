@@ -16,7 +16,8 @@ function run() {
 }
 
 run examples/simple-example && \
-  run examples/managed-react
+  run examples/managed-react && \
+  run examples/storybook-v5
 
 if [ "$?" -gt 0 ]; then
   exit 1
