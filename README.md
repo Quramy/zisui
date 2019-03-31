@@ -28,7 +28,7 @@ $ zisui --serverCmd "start-storybook -p 9001" http://localhost:9001
 Also, *zisui* can crawls built and hosted Storybook pages:
 
 ```sh
-$ zisui http://release-3-4--storybooks-vue.netlify.com
+$ zisui https://release-5-0--storybooks-vue.netlify.com
 ```
 
 ### Managed mode
@@ -146,8 +146,46 @@ type ScreenShotOptions = {
   withScreenshot({ waitFor: 'myWait' }) // wait for 5 seconds.
 ```
 
+## Storybook version compatible
+zisui is tested with the followings versions:
+
+- Simple mode:
+  - [x] Storybook v4.x
+  - [x] Storybook v5.x
+- Managed mode:
+  - [x] Storybook v4.x
+  - [x] Storybook v5.x
+
+See also packages in `examples` directory.
+
 ## How it works?
 *zisui* is a crawler using Puppeteer.
+
+## How to contribute?
+PR's are welcome :smile:
+
+### Setup
+
+* Clone this repository
+* `yarn --pure-lockfile`
+
+### E2E testing
+
+#### All storybook versions
+
+```sh
+$ ./e2e.sh
+```
+
+When the command exit successfully, check `__screenshots__` dir. There should be captured PNG files.
+
+#### Single storybook
+
+And `e2e.sh` accepts a specific storybook example's name. For example:
+
+```sh
+$ ./e2e.sh examples/v4-simple
+```
 
 ## License
 MIT
