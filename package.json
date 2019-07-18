@@ -46,17 +46,17 @@
     "@types/imagesloaded": "^4.1.1",
     "@types/minimatch": "^3.0.3",
     "@types/mkdirp": "^0.5.2",
-    "@types/node": "^10.5.7",
+    "@types/node": "^12.6.8",
     "@types/puppeteer": "^1.6.0",
     "@types/rimraf": "^2.0.2",
-    "@types/yargs": "^11.1.1",
+    "@types/yargs": "^13.0.0",
     "chalk": "^2.4.1",
     "imagesloaded": "^4.1.4",
     "minimatch": "^3.0.4",
     "mkdirp": "^0.5.1",
     "puppeteer": "^1.6.2",
     "rimraf": "^2.6.2",
-    "wait-on": "^2.1.0",
-    "yargs": "^12.0.1"
+    "wait-on": "^3.3.0",
+    "yargs": "^13.3.0"
   }
 }

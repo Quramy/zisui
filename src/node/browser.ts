@@ -1,5 +1,4 @@
 import { StoryKind } from "@storybook/addons";
-import { Buffer } from "buffer";
 import { EventEmitter } from "events";
 import { parse } from "url";
 import querystring from "querystring";
@@ -124,19 +123,23 @@ export class StorybookBrowser extends Browser {
     } else {
       await this.page.goto(this.opt.storybookUrl + "/iframe.html?selectedKind=zisui&selectedStory=zisui");
       await this.page.waitFor(() => (window as ExposedWindow).__STORYBOOK_CLIENT_API__);
-      [stories, oldStories] = await this.page.evaluate(
+      const result = await this.page.evaluate(
         () => {
           const win = window as ExposedWindow;
           if (win.__STORYBOOK_CLIENT_API__.raw) {
             // for simple mode with storybook v5
             // .raw API exsits only if storybook v5
-            return [win.__STORYBOOK_CLIENT_API__.raw().map(_ => ({ id: _.id, kind: _.kind, story: _.name, version: "v5"  })), null];
+            const stories = win.__STORYBOOK_CLIENT_API__.raw().map(_ => ({ id: _.id, kind: _.kind, story: _.name, version: "v5" } as V5Story));
+            return { stories, oldStories: null };
           } else {
             // for simple mode with storybook v4
-            return [null, win.__STORYBOOK_CLIENT_API__.getStorybook().map(({ kind, stories }) => ({ kind, stories: stories.map(s => s.name) }))];
+            const oldStories = win.__STORYBOOK_CLIENT_API__.getStorybook().map(({ kind, stories }) => ({ kind, stories: stories.map(s => s.name) }));
+            return { stories: null, oldStories };
           }
         }
       );
+      stories = result.stories;
+      oldStories = result.oldStories;
     }
     if (oldStories) {
       stories = flattenStories(oldStories);

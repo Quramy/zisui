@@ -1,7 +1,6 @@
 import { API, StoryKind } from "@storybook/addons";
 import { ScreenShotOptions } from "../client/types";
 import { Logger } from "./logger";
-import { Story } from "../types";
 
 export type ExposedWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;

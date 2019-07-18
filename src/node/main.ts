@@ -1,6 +1,5 @@
-import { StoryKind } from "@storybook/addons";
 import { StorybookBrowser, PreviewBrowser } from "./browser";
-import { execParalell, flattenStories, filterStories } from "../util";
+import { execParalell, filterStories } from "../util";
 import { Story } from "../types";
 import { MainOptions, ZisuiRunMode } from "./types";
 import { StorybookServer } from "./server";
@@ -15,7 +14,6 @@ async function bootPreviewBrowsers(opt: MainOptions, stories: Story[], mode: Zis
 }
 
 export async function main(opt: MainOptions) {
-  const logger = opt.logger;
   const fileSystem = new FileSystem(opt);
   const storybookServer = new StorybookServer(opt);
   const storybookBrowser = new StorybookBrowser(opt);

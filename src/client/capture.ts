@@ -1,7 +1,6 @@
 import { ExposedWindow } from "../node/types";
 import { ScreenShotOptions } from "./types";
 import imagesloaded from "imagesloaded";
-import { Story } from "../types";
 import { sleep } from "../util";
 import { defaultScreenshotOptions } from "./default-screenshot-options";
 
@@ -19,6 +18,8 @@ function waitUserFunction(waitFor: string | (() => Promise<any>), win: ExposedWi
     return win.waitFor();
   } else if (typeof waitFor === "function") {
     return waitFor();
+  } else {
+    return Promise.resolve();
   }
 }
 
