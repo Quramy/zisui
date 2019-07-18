@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { Buffer } from "buffer";
 import * as mkdirp from "mkdirp";
 import { MainOptions } from "./types";
 

@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import addons, { StoryKind } from "@storybook/addons";
+import { StoryKind } from "@storybook/addons";
 import { capture, stock } from "../capture";
 import { ScreenShotOptions } from "../types";
 
