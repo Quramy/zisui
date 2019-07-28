@@ -224,6 +224,7 @@ $doc.body.appendChild($style);
 
   private waitScreenShotOption() {
     return new Promise<ScreenShotOptions | undefined>((resolve, reject) => {
+      // eslint-disable-next-line prefer-const
       let id: NodeJS.Timer;
       const cb = (opt?: ScreenShotOptions) => {
         resolve(opt);
