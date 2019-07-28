@@ -12,31 +12,31 @@ export class Logger {
 
   debug(...msg: any[]) {
     if (this.level !== "verbose") return;
-    // tslint:disable-next-line: no-console
+    // eslint-disable-next-line no-console
     console.log.apply(console, [this.color.gray("debug"), ...msg]);
   }
 
   log(...msg: (string | number | boolean)[]) {
     if (this.level === "silent") return;
-    // tslint:disable-next-line: no-console
+    // eslint-disable-next-line no-console
     console.log.apply(console, [this.color.cyan("info"), ...msg]);
   }
 
   warn(...msg: (string | number | boolean)[]) {
     if (this.level === "silent") return;
-    // tslint:disable-next-line: no-console
+    // eslint-disable-next-line no-console
     console.error.apply(console, [this.color.yellow("warn"), ...msg]);
   }
 
   error(...msg: any[]) {
     if (this.level === "silent") return;
-    // tslint:disable-next-line: no-console
+    // eslint-disable-next-line no-console
     console.error.apply(console, [this.color.red("error"), ...msg]);
   }
 
   errorStack(stack: any) {
     if (this.level === "silent") return;
-    // tslint:disable-next-line: no-console
+    // eslint-disable-next-line no-console
     console.error(stack);
   }
 

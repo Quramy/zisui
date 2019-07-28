@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rimraf lib",
     "build": "tsc",
-    "lint": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
+    "lint": "eslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "clihelp": "node scripts/cli-help.js",
     "prepare": "yarn clean && yarn build && yarn clihelp",
     "test": "sh e2e.sh",
@@ -31,15 +31,16 @@
   "homepage": "https://github.com/Quramy/zisui#readme",
   "devDependencies": {
     "@types/react": "^16.4.9",
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0",
+    "eslint": "^6.0.0",
     "react": "^16.4.2",
     "reg-keygen-git-hash-plugin": "^0.7.16",
     "reg-notify-github-plugin": "^0.7.21",
     "reg-publish-s3-plugin": "^0.7.22",
     "reg-suit": "^0.7.17",
-    "tslint": "^5.11.0",
-    "tslint-eslint-rules": "^5.3.1",
-    "tslint-language-service": "^0.9.9",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "typescript-eslint-language-service": "^1.2.2"
   },
   "dependencies": {
     "@types/chalk": "^2.2.0",

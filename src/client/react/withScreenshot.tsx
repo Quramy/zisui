@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { StoryKind } from "@storybook/addons";
 import { capture, stock } from "../capture";
 import { ScreenShotOptions } from "../types";
@@ -19,9 +19,9 @@ class ScreenshotDecorator extends React.Component<Props> {
 
   render() {
     return (
-      <Fragment>
+      <>
         {this.props.children}
-      </Fragment>
+      </>
     );
   }
 }
