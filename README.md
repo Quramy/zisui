@@ -164,28 +164,7 @@ See also packages in `examples` directory.
 ## How to contribute?
 PR's are welcome :smile:
 
-### Setup
-
-* Clone this repository
-* `yarn --pure-lockfile`
-
-### E2E testing
-
-#### All storybook versions
-
-```sh
-$ ./e2e.sh
-```
-
-When the command exit successfully, check `__screenshots__` dir. There should be captured PNG files.
-
-#### Single storybook
-
-And `e2e.sh` accepts a specific storybook example's name. For example:
-
-```sh
-$ ./e2e.sh examples/v4-simple
-```
+See [CONTRIBUTING](CONTRIBUTING.md) if you want more detail.
 
 ## License
 MIT
