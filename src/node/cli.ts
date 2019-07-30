@@ -88,17 +88,17 @@ const { logger, ...rest } = opt;
 logger.debug("Option:", rest);
 
 main(opt)
-.then(() => {
-  const duration = Date.now() - start;
-  logger.log(`Screenshot was ended successfully in ${opt.logger.color.green(duration + " msec")}.`);
-  process.exit(0);
-})
-.catch(err => {
-  if (err instanceof Error) {
-    logger.error(err.message);
-    logger.errorStack(err.stack);
-  } else {
-    logger.error(err);
-  }
-  process.exit(1);
-});
+  .then(() => {
+    const duration = Date.now() - start;
+    logger.log(`Screenshot was ended successfully in ${opt.logger.color.green(duration + " msec")}.`);
+    process.exit(0);
+  })
+  .catch(err => {
+    if (err instanceof Error) {
+      logger.error(err.message);
+      logger.errorStack(err.stack);
+    } else {
+      logger.error(err);
+    }
+    process.exit(1);
+  });
