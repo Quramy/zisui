@@ -2,7 +2,7 @@
 
 A fast and simple CLI to screenshot your Storybook.
 
-![capture](capture.gif)
+[![asciicast](https://asciinema.org/a/260008.svg)](https://asciinema.org/a/260008)
 
 ## Install
 
