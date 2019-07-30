@@ -13,12 +13,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "zisui:all": "yarn prestorybook && node node_modules/zisui/lib/node/cli.js --server-cmd \"start-storybook -p 9009 -s public\" \"http://localhost:9009\"",
     "storybook:start": "start-storybook -p 9009 -s public",
     "storybook": "start-storybook -p 9009 -s public",
-    "build:lib": "cd ../../ && yarn build",
-    "prestorybook": "yarn build:lib && rimraf node_modules/zisui && mkdirp node_modules/zisui && cp ../../package.json node_modules/zisui && cp -rf ../../lib node_modules/zisui && cp ../../register.js node_modules/zisui",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "prestorybook": "../../scripts/e2e-prestorybook.js .",
+    "zisui:all": "yarn prestorybook && zisui --server-cmd \"start-storybook -p 9009 -s public\" \"http://localhost:9009\""
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.4.10",

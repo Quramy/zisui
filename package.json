@@ -31,6 +31,9 @@
   "homepage": "https://github.com/Quramy/zisui#readme",
   "devDependencies": {
     "@types/react": "^16.4.9",
+    "copy-dir": "^1.1.0",
+    "cpy": "^7.3.0",
+    "minimist": "^1.2.0",
     "react": "^16.4.2",
     "reg-keygen-git-hash-plugin": "^0.7.16",
     "reg-notify-github-plugin": "^0.7.21",
