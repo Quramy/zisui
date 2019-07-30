@@ -4,3 +4,4 @@ examples/
 src/
 .reg
 regconfig.json
+.eslintrc.yml
