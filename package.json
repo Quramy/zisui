@@ -20,6 +20,11 @@
     "type": "git",
     "url": "git+https://github.com/Quramy/zisui.git"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
   "keywords": [
     "screenshot"
   ],
