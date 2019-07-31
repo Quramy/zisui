@@ -29,7 +29,7 @@ function waitNextIdle(win: ExposedWindow) {
 
 function pushOptions(win: ExposedWindow, storyKey: string | undefined, opt: Partial<ScreenShotOptions>) {
   if (!storyKey) return;
-  if (!win.optionStore) win.optionStore = { };
+  if (!win.optionStore) win.optionStore = {};
   if (!win.optionStore[storyKey]) win.optionStore[storyKey] = [];
   win.optionStore[storyKey].push(opt);
 }
@@ -50,7 +50,7 @@ function withExpoesdWindow(cb: (win: ExposedWindow) => any) {
   return cb(win);
 }
 
-export function stock(opt: Partial<ScreenShotOptions> = { }) {
+export function stock(opt: Partial<ScreenShotOptions> = {}) {
   withExpoesdWindow(win => {
     win.getCurrentStoryKey(location.href).then(storyKey => pushOptions(win, storyKey, opt));
   });
@@ -62,7 +62,10 @@ export function capture() {
       if (!storyKey) return;
       const options = consumeOptions(win, storyKey);
       if (!options) return;
-      const scOpt = options.reduce((acc: ScreenShotOptions, opt: Partial<ScreenShotOptions>) => ({ ...acc, ...opt }), defaultScreenshotOptions);
+      const scOpt = options.reduce(
+        (acc: ScreenShotOptions, opt: Partial<ScreenShotOptions>) => ({ ...acc, ...opt }),
+        defaultScreenshotOptions,
+      );
       if (scOpt.skip) win.emitCatpture(scOpt);
       Promise.resolve()
         .then(() => waitImages(scOpt.waitImages))

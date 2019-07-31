@@ -12,9 +12,13 @@ export function sleep(time: number = 0) {
 
 export function flattenStories(stories: StoryKind[]) {
   return stories.reduce(
-    (acc, storyKind) => [...acc, ...storyKind.stories.map(story => {
-      return { id: undefined, kind: storyKind.kind, story, version: "v4" } as V4Story;
-    })], [] as Story[]
+    (acc, storyKind) => [
+      ...acc,
+      ...storyKind.stories.map(story => {
+        return { id: undefined, kind: storyKind.kind, story, version: "v4" } as V4Story;
+      }),
+    ],
+    [] as Story[],
   );
 }
 
@@ -31,15 +35,20 @@ export const execParalell = <T, S>(tasks: Task<T, S>[], runners: S[]) => {
   const p = runners.length;
   if (!p) throw new Error("No runners");
   return Promise.all(
-    new Array(p).fill("").map((_, i) => new Promise((res, rej) => {
-      function next(): Promise<number | void> {
-        const t = copied.shift();
-        return t == null ? Promise.resolve(res()) : t(runners[i])
-          .then((r) => results.push(r))
-          .then(next)
-          .catch(rej);
-      }
-      return next();
-    }))
+    new Array(p).fill("").map(
+      (_, i) =>
+        new Promise((res, rej) => {
+          function next(): Promise<number | void> {
+            const t = copied.shift();
+            return t == null
+              ? Promise.resolve(res())
+              : t(runners[i])
+                  .then(r => results.push(r))
+                  .then(next)
+                  .catch(rej);
+          }
+          return next();
+        }),
+    ),
   ).then(() => results);
 };

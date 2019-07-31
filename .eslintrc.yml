@@ -1,4 +1,7 @@
 root: true
+extends:
+  - prettier
+  - "prettier/@typescript-eslint"
 parser: "@typescript-eslint/parser"
 parserOptions:
   sourceType: "module"
@@ -12,17 +15,13 @@ rules:
   no-eval: error
   no-debugger: error
   no-console: error
-  quotes:
-    - error
-    - double
-  semi: error
   no-duplicate-imports: error
   no-var: error
   no-unsafe-finally: error
   prefer-const: error
   prefer-rest-params: error
   prefer-spread: error
-  object-curly-spacing: 
+  object-curly-spacing:
     - error
     - always
   no-trailing-spaces:
@@ -31,6 +30,3 @@ rules:
   "@typescript-eslint/camelcase": error
   "@typescript-eslint/no-use-before-define": error
   "@typescript-eslint/no-namespace": error
-  "@typescript-eslint/indent":
-    - error
-    - 2

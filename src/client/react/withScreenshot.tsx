@@ -4,11 +4,10 @@ import { capture, stock } from "../capture";
 import { ScreenShotOptions } from "../types";
 
 type Props = {
-  screenshotOptions?: Partial<ScreenShotOptions>,
+  screenshotOptions?: Partial<ScreenShotOptions>;
 };
 
 class ScreenshotDecorator extends React.Component<Props> {
-
   componentWillMount() {
     stock(this.props.screenshotOptions);
   }
@@ -18,22 +17,18 @@ class ScreenshotDecorator extends React.Component<Props> {
   }
 
   render() {
-    return (
-      <>
-        {this.props.children}
-      </>
-    );
+    return <>{this.props.children}</>;
   }
 }
 
-export function withScreenshot(opt: Partial<ScreenShotOptions> = { }) {
+export function withScreenshot(opt: Partial<ScreenShotOptions> = {}) {
   return (storyFn: Function, ctx: StoryKind | undefined) => {
     const wrapperWithContext = (context: any) => {
       const props = {
         screenshotOptions: opt,
       };
 
-      return <ScreenshotDecorator{...props}>{storyFn(context)}</ScreenshotDecorator>;
+      return <ScreenshotDecorator {...props}>{storyFn(context)}</ScreenshotDecorator>;
     };
 
     if (ctx) {

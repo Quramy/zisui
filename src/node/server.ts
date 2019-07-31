@@ -9,7 +9,7 @@ function waitServer(url: string, timeout: number) {
   }
   const resource = url.startsWith("https") ? url.replace(/^https/, "https-get") : url.replace(/^http/, "http-get");
   return new Promise((resolve, reject) => {
-    waitOn({ resources: [resource], timeout }, (err) => {
+    waitOn({ resources: [resource], timeout }, err => {
       if (err) {
         if (err.message === "Timeout") {
           return reject(new StorybookServerTimeoutError(timeout));
@@ -23,14 +23,13 @@ function waitServer(url: string, timeout: number) {
 
 export class StorybookServer {
   private proc?: cp.ChildProcess;
-  constructor(private opt: MainOptions) {
-  }
+  constructor(private opt: MainOptions) {}
 
   async launchIfNeeded() {
     this.opt.logger.log(`Wait for connecting storybook server ${this.opt.logger.color.green(this.opt.storybookUrl)}.`);
     if (this.opt.serverCmd) {
       const [cmd, ...args] = this.opt.serverCmd.split(/\s+/);
-      const stdio = this.opt.logger.level === "verbose" ? [0, 1, 2]: [];
+      const stdio = this.opt.logger.level === "verbose" ? [0, 1, 2] : [];
       this.proc = cp.spawn(cmd, args, { stdio });
       this.opt.logger.debug("Server process created", this.proc.pid);
     }
