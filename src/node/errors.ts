@@ -1,5 +1,5 @@
 export class InvalidUrlError extends Error {
-  name =" InvalidUrlError";
+  name = " InvalidUrlError";
 
   constructor(invalidUrl: string) {
     super();
@@ -8,14 +8,12 @@ export class InvalidUrlError extends Error {
 }
 
 export class StorybookServerTimeoutError extends Error {
-
   name = "ScreenshotTimeoutError";
 
   constructor(msec: number) {
     super();
     this.message = `Storybook server launch timeout exceeded in ${msec} ms.`;
   }
-
 }
 
 export class NoStoriesError extends Error {
@@ -23,14 +21,12 @@ export class NoStoriesError extends Error {
 }
 
 export class ScreenshotTimeoutError extends Error {
-
   name = "ScreenshotTimeoutError";
 
-  constructor(msec: number, target: { kind?: string, story?: string }) {
+  constructor(msec: number, target: { kind?: string; story?: string }) {
     super();
     this.message = `Screenshot timeout exceeded. 'capture' function is not triggerd in ${msec} ms. Target story: ${target.kind}/${target.story}`;
   }
-
 }
 
 export class InvalidCurrentStoryStateError extends Error {

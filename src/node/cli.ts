@@ -17,21 +17,40 @@ function createOptions(): MainOptions {
     .option("include", { array: true, alias: "i", default: [], description: "Including stories name rule." })
     .option("exclude", { array: true, alias: "e", default: [], description: "Excluding stories name rule." })
     .option("viewport", { string: true, alias: "V", default: "800x600", description: "Default viewport." })
-    .option("disableCssAnimation", { boolean: true, default: true, description: "Disable CSS animation and transition." })
+    .option("disableCssAnimation", {
+      boolean: true,
+      default: true,
+      description: "Disable CSS animation and transition.",
+    })
     .option("silent", { boolean: true, default: false })
     .option("verbose", { boolean: true, default: false })
     .option("serverCmd", { string: true, default: "", description: "Command line to launch Storybook server." })
-    .option("serverTimeout", { number: true, default: 20_000, description: "Timeout [msec] for starting Storybook server." })
+    .option("serverTimeout", {
+      number: true,
+      default: 20_000,
+      description: "Timeout [msec] for starting Storybook server.",
+    })
     .option("captureTimeout", { number: true, default: 5_000, description: "Timeout [msec] for capture a story." })
     .option("captureMaxRetryCount", { number: true, default: 3, description: "Number of count to retry to capture." })
-    .option("metricsWatchRetryCount", { number: true, default: 1000, description: "Number of count to retry until browser metrics stable." })
-    .option("viewportDelay", { number: true, default: 300, description: "Delay time [msec] between changing viewport and capturing." })
-    .option("reloadAfterChangeViewport", { boolean: true, default: false, description: "Whether to reload after viewport changed." })
+    .option("metricsWatchRetryCount", {
+      number: true,
+      default: 1000,
+      description: "Number of count to retry until browser metrics stable.",
+    })
+    .option("viewportDelay", {
+      number: true,
+      default: 300,
+      description: "Delay time [msec] between changing viewport and capturing.",
+    })
+    .option("reloadAfterChangeViewport", {
+      boolean: true,
+      default: false,
+      description: "Whether to reload after viewport changed.",
+    })
     .example("zisui http://localshot:9009", "")
-    .example("zisui http://localshot:9009 -i \"some-kind/a-story\"", "")
-    .example("zisui http://example.com/your-storybook -e \"**/default\" -V iPad", "")
-    .example("zisui --serverCmd \"start-storybook -p 3000\" http://localshot:3000", "")
-  ;
+    .example('zisui http://localshot:9009 -i "some-kind/a-story"', "")
+    .example('zisui http://example.com/your-storybook -e "**/default" -V iPad', "")
+    .example('zisui --serverCmd "start-storybook -p 3000" http://localshot:3000', "");
   let storybookUrl;
 
   if (!setting.argv._.length) {

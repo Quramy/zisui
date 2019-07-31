@@ -16,6 +16,6 @@ const out = `${head}<!-- inject:clihelp -->
 ${mark}txt
 ${help}
 ${mark}
-<!-- endinject -->${tail}`
+<!-- endinject -->${tail}`;
 
 fs.writeFileSync(path.join(__dirname, "../README.md"), out, "utf8");

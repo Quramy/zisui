@@ -3,7 +3,6 @@ import chalk, { Chalk } from "chalk";
 export type LogLevel = "verbose" | "silent" | "normal";
 
 export class Logger {
-
   color: Chalk;
 
   constructor(public level: LogLevel = "normal") {
@@ -49,5 +48,4 @@ export class Logger {
     if (this.level === "silent") return;
     process.stdout.write(".");
   }
-
 }

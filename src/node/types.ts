@@ -4,12 +4,12 @@ import { Logger } from "./logger";
 
 export type ExposedWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
-  stories?: StoryKind[],
-  emitCatpture(opt: ScreenShotOptions): void,
-  waitFor?: () => Promise<any>,
-  requestIdleCallback(cb: Function, opt?: { timeout: number }): void,
-  getCurrentStoryKey: (url: string) => Promise<string | undefined>,
-  optionStore?: { [storyKey: string]:  (Partial<ScreenShotOptions>)[] },
+  stories?: StoryKind[];
+  emitCatpture(opt: ScreenShotOptions): void;
+  waitFor?: () => Promise<any>;
+  requestIdleCallback(cb: Function, opt?: { timeout: number }): void;
+  getCurrentStoryKey: (url: string) => Promise<string | undefined>;
+  optionStore?: { [storyKey: string]: (Partial<ScreenShotOptions>)[] };
 };
 
 export type ZisuiRunMode = "simple" | "managed";
