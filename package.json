@@ -10,6 +10,8 @@
   "scripts": {
     "clean": "rimraf lib",
     "build": "tsc",
+    "format": "prettier --write \"src/**/*\" \"scripts/**/*\"",
+    "format:check": "prettier --check \"src/**/*\" \"scripts/**/*\"",
     "lint": "eslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "clihelp": "node scripts/cli-help.js",
     "prepare": "yarn clean && yarn build && yarn clihelp",
