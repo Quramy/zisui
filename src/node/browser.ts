@@ -329,6 +329,8 @@ $doc.body.appendChild($style);
       if (!opt || opt.skip) {
         const elapsedTime = Date.now() - this.processStartTime;
         return { ...this.currentStory, buffer: null, elapsedTime };
+      } else if (!opt.viewport) {
+        opt.viewport = this.opt.defaultViewport;
       }
     }
     const succeeded = await this.setViewport(opt);
