@@ -38,8 +38,8 @@
   "homepage": "https://github.com/Quramy/zisui#readme",
   "devDependencies": {
     "@types/react": "^16.4.9",
-    "@typescript-eslint/eslint-plugin": "^1.13.0",
-    "@typescript-eslint/parser": "^1.13.0",
+    "@typescript-eslint/eslint-plugin": "^2.3.0",
+    "@typescript-eslint/parser": "^2.3.0",
     "copy-dir": "^1.1.0",
     "cpy": "^7.3.0",
     "eslint": "^6.0.0",
@@ -70,8 +70,8 @@
     "minimatch": "^3.0.4",
     "mkdirp": "^0.5.1",
     "puppeteer": "^1.19.0",
-    "rimraf": "^2.6.2",
+    "rimraf": "^3.0.0",
     "wait-on": "^3.3.0",
-    "yargs": "^13.3.0"
+    "yargs": "^14.0.0"
   }
 }
