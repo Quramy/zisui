@@ -1,4 +1,6 @@
-# zisui [![npm version](https://badge.fury.io/js/zisui.svg)](https://badge.fury.io/js/zisui) [![CircleCI](https://circleci.com/gh/Quramy/zisui.svg?style=svg)](https://circleci.com/gh/Quramy/zisui) 
+**This repository is not maintained. zisui was integrated into [https://github.com/reg-viz/storycap](https://github.com/reg-viz/storycap). And migration to Storycap is so easy. Please read [our migration guide](https://github.com/reg-viz/storycap/blob/master/MIGRATION.md#from-zisui-1x-to-storycap)**
+
+# zisui [![npm version](https://badge.fury.io/js/zisui.svg)](https://badge.fury.io/js/zisui) [![CircleCI](https://circleci.com/gh/Quramy/zisui.svg?style=svg)](https://circleci.com/gh/Quramy/zisui)
 
 A fast and simple CLI to screenshot your Storybook.
 
@@ -11,7 +13,8 @@ $ npm install zisui
 ```
 
 ## How to use
-*zisui* runs with 2 modes. One is "simple" and another is "managed".
+
+_zisui_ runs with 2 modes. One is "simple" and another is "managed".
 
 With the simple mode, you don't need to configure your Storybook. Give an URL, such as:
 
@@ -25,29 +28,30 @@ You can launch your server via `--serverCmd` option.
 $ zisui --serverCmd "start-storybook -p 9001" http://localhost:9001
 ```
 
-Also, *zisui* can crawls built and hosted Storybook pages:
+Also, _zisui_ can crawls built and hosted Storybook pages:
 
 ```sh
 $ zisui https://release-5-0--storybooks-vue.netlify.com
 ```
 
 ### Managed mode
+
 If you want to control how stories are captured (timing or size or etc...), use managed mode.
 
-First, you need to register *zisui* Storybook addon.
+First, you need to register _zisui_ Storybook addon.
 
 ```js
 /* .storybook/addons.js */
 
-import 'zisui/register';
+import "zisui/register";
 ```
 
-Next, use `withScreenshot` decorator to tell how *zisui* captures your stories.
+Next, use `withScreenshot` decorator to tell how _zisui_ captures your stories.
 
 ```js
 /* .storybook/config.js */
-import { addDecorator } from '@storybook/react';
-import { withScreenshot } from 'zisui';
+import { addDecorator } from "@storybook/react";
+import { withScreenshot } from "zisui";
 
 addDecorator(withScreenshot());
 ```
@@ -65,13 +69,14 @@ storiesOf('SomeKind', module)
 .add('a story', () => /* your story component */);
 ```
 
-*Note*
+_Note_
 
 Now, the `withScreenshot` decorator supports React only.
 
 ### CLI options
 
 <!-- inject:clihelp -->
+
 ```txt
 usage: zisui [options] storybook_url
 
@@ -102,6 +107,7 @@ Examples:
   zisui --serverCmd "start-storybook -p 3000" http://localshot:3000
 
 ```
+
 <!-- endinject -->
 
 ### API
@@ -112,7 +118,7 @@ Examples:
 withScreenshot(opt?: ScreenShotOptions): Function;
 ```
 
-A Storybook decorator to notify *zisui* to screenshot stories.
+A Storybook decorator to notify _zisui_ to screenshot stories.
 
 #### type `ScreenShotOptions`
 
@@ -131,7 +137,7 @@ type ScreenShotOptions = {
 ```
 
 - `viewport`: If you set a string parameter, it must be included Puppeteer's device descriptors.
-- `waitFor` : Sometimes you want control the timing to screenshot. If you set a function to return `Promise`, *zisui* waits the promise is resolved. Also you can set global function name to this.
+- `waitFor` : Sometimes you want control the timing to screenshot. If you set a function to return `Promise`, _zisui_ waits the promise is resolved. Also you can set global function name to this.
 
 ```html
 <!-- .storybook/preview-head.html -->
@@ -143,10 +149,11 @@ type ScreenShotOptions = {
 ```
 
 ```js
-  withScreenshot({ waitFor: 'myWait' }) // wait for 5 seconds.
+withScreenshot({ waitFor: "myWait" }); // wait for 5 seconds.
 ```
 
 ## Storybook version compatible
+
 zisui is tested with the followings versions:
 
 - Simple mode:
@@ -159,12 +166,15 @@ zisui is tested with the followings versions:
 See also packages in `examples` directory.
 
 ## How it works?
-*zisui* is a crawler using Puppeteer.
+
+_zisui_ is a crawler using Puppeteer.
 
 ## How to contribute?
+
 PR's are welcome :smile:
 
 See [CONTRIBUTING](CONTRIBUTING.md) if you want more detail.
 
 ## License
+
 MIT
