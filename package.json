@@ -1,6 +1,6 @@
 {
   "name": "zisui",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Fast and simple storybook screenshooter.",
   "bin": {
     "zisui": "lib/node/cli.js"
@@ -8,6 +8,7 @@
   "typings": "lib/client/index.d.ts",
   "main": "lib/client/index.js",
   "scripts": {
+    "postinstall": "echo \"zisui is not maintained. Please 'npm i storycap' .\"",
     "clean": "rimraf lib",
     "build": "tsc",
     "format": "prettier --write \"src/**/*\" \"scripts/**/*\"",
